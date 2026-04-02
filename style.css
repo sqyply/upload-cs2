@@ -1,12 +1,24 @@
-body { background: #0b0b0b; color: white; font-family: sans-serif; text-align: center; margin: 0; }
-header { display: flex; justify-content: space-between; padding: 20px; background: #141414; border-bottom: 2px solid #ffcc00; }
-.logo { font-size: 24px; font-weight: bold; }
+body { background: #0d0d0d; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; background: #1a1a1a; border-bottom: 3px solid #ffcc00; }
+.logo { font-size: 30px; font-weight: 900; }
 .logo span { color: #ffcc00; }
-.game-container { display: flex; justify-content: space-around; align-items: center; height: 400px; padding: 50px; }
-.item-slot { width: 120px; height: 120px; background: #1a1a1a; border: 2px dashed #333; line-height: 120px; border-radius: 10px; }
-.upgrade-circle { position: relative; width: 400px; height: 400px; }
-.chance-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-#chance-value { font-size: 40px; color: #ffcc00; font-weight: bold; }
-.controls { margin-top: 20px; }
-button { background: #333; color: white; border: 1px solid #444; padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 5px; }
-#upgrade-btn { background: #ffcc00; color: black; border: none; padding: 15px 60px; font-size: 20px; font-weight: bold; border-radius: 30px; display: block; margin: 20px auto; }
+
+.game-container { display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 40px; height: 80vh; }
+.items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; height: 500px; }
+
+.item-card { background: #151515; border: 1px solid #333; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+.item-card:hover { border-color: #ffcc00; transform: translateY(-3px); }
+.item-card img { width: 100%; }
+.item-card p { font-size: 12px; margin: 5px 0; color: #bbb; }
+.item-card span { color: #ffcc00; font-weight: bold; }
+
+.wheel-wrapper { position: relative; width: 400px; margin: 0 auto; }
+.needle { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 4px; height: 40px; background: #ffcc00; z-index: 10; box-shadow: 0 0 15px #ffcc00; }
+.chance-info { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+#chance-text { font-size: 48px; font-weight: 900; color: #ffcc00; text-shadow: 0 0 20px rgba(255,204,0,0.5); }
+
+#upgrade-btn { width: 100%; max-width: 400px; height: 70px; background: linear-gradient(180deg, #ffcc00 0%, #cc9900 100%); border: none; border-radius: 35px; font-size: 24px; font-weight: bold; cursor: pointer; margin-top: 30px; transition: 0.3s; box-shadow: 0 10px 20px rgba(255,204,0,0.2); }
+#upgrade-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,204,0,0.4); }
+
+.user-info { display: flex; align-items: center; gap: 20px; }
+#user-balance { font-size: 20px; color: #ffcc00; font-weight: bold; }
