@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPLOAD.CS2 | Наглый Апгрейд</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">UPLOAD<span>.CS2</span></div>
+        <button class="login-btn">LOGIN VIA STEAM</button>
+    </header>
+
+    <main>
+        <div class="game-container">
+            <div class="inventory side">
+                <h3>ТВОЙ СКИН</h3>
+                <div class="item-slot select">ВЫБРАТЬ</div>
+            </div>
+
+            <div class="upgrade-circle">
+                <canvas id="wheel" width="400" height="400"></canvas>
+                <div class="chance-display">
+                    <span id="chance-value">50.00%</span>
+                    <p>Шанс выигрыша</p>
+                </div>
+            </div>
+
+            <div class="target side">
+                <h3>ЦЕЛЬ</h3>
+                <div class="item-slot target-slot">?</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="multipliers">
+                <button onclick="setChance(1.5)">x1.5</button>
+                <button onclick="setChance(2)">x2</button>
+                <button onclick="setChance(5)">x5</button>
+                <button onclick="setChance(10)">x10</button>
+            </div>
+            <button id="upgrade-btn">UPGRADE</button>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
