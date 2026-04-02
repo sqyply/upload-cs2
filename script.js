@@ -2,6 +2,15 @@ const canvas = document.getElementById('wheel');
 const ctx = canvas.getContext('2d');
 const chanceDisplay = document.getElementById('chance-display');
 const upgradeBtn = document.getElementById('upgrade-btn');
+const firebaseConfig = {
+  apiKey: "AIzaSyD8-CEB-HZMouwx_HLGmPfnOOD5HmF3nUM",
+  authDomain: "upload-cs2.firebaseapp.com",
+  projectId: "upload-cs2",
+  storageBucket: "upload-cs2.firebasestorage.app",
+  messagingSenderId: "611922955960",
+  appId: "1:611922955960:web:c9b87c819075e33446ae4d",
+  measurementId: "G-2HHKE194B7"
+};
 
 let chance = 45.00;
 let isRolling = false;
