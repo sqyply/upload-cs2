@@ -3,44 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPLOAD.CS2 | Наглый Апгрейд</title>
+    <title>UPLOAD.CS2 | Официальный Апгрейд</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <div class="logo">UPLOAD<span>.CS2</span></div>
-        <button class="login-btn">LOGIN VIA STEAM</button>
+        <div id="user-profile" class="user-info">
+            <span id="user-balance">$500.00</span>
+            <button class="login-btn" onclick="fakeLogin()">LOGIN VIA STEAM</button>
+        </div>
     </header>
 
     <main>
         <div class="game-container">
-            <div class="inventory side">
-                <h3>ТВОЙ СКИН</h3>
-                <div class="item-slot select">ВЫБРАТЬ</div>
+            <div class="inventory-box">
+                <h3>ТВОЙ ИНВЕНТАРЬ</h3>
+                <div id="my-inventory" class="items-grid">
+                    </div>
             </div>
 
-            <div class="upgrade-circle">
-                <canvas id="wheel" width="400" height="400"></canvas>
-                <div class="chance-display">
-                    <span id="chance-value">50.00%</span>
-                    <p>Шанс выигрыша</p>
+            <div class="upgrade-area">
+                <div class="wheel-wrapper">
+                    <canvas id="wheel" width="400" height="400"></canvas>
+                    <div class="needle"></div>
+                    <div class="chance-info">
+                        <span id="chance-text">50%</span>
+                    </div>
+                </div>
+                <button id="upgrade-btn">UPGRADE</button>
+            </div>
+
+            <div class="target-box">
+                <h3>ЦЕЛЬ АПГРЕЙДА</h3>
+                <div id="target-item" class="item-card big">
+                    <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjx2jJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrY6i2lHj-ERvY273co-SclA8YVvS_FLsl73ng5S9v8zMmHBu73I8pSGKgf9f_6M" alt="">
+                    <p>AWP | Dragon Lore</p>
+                    <span>$12,500</span>
                 </div>
             </div>
-
-            <div class="target side">
-                <h3>ЦЕЛЬ</h3>
-                <div class="item-slot target-slot">?</div>
-            </div>
-        </div>
-
-        <div class="controls">
-            <div class="multipliers">
-                <button onclick="setChance(1.5)">x1.5</button>
-                <button onclick="setChance(2)">x2</button>
-                <button onclick="setChance(5)">x5</button>
-                <button onclick="setChance(10)">x10</button>
-            </div>
-            <button id="upgrade-btn">UPGRADE</button>
         </div>
     </main>
 
