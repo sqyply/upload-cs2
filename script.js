@@ -1,26 +1,25 @@
-const canvas = document.getElementById('wheel');
-const ctx = canvas.getContext('2d');
-let chance = 50.00;
-
-function draw() {
-    ctx.clearRect(0,0,400,400);
-    ctx.beginPath();
-    ctx.arc(200,200,180,0,Math.PI*2);
-    ctx.strokeStyle='#222'; ctx.lineWidth=15; ctx.stroke();
-    
-    ctx.beginPath();
-    ctx.arc(200,200,180,-Math.PI/2, (-Math.PI/2) + (Math.PI*2*(chance/100)));
-    ctx.strokeStyle='#ffcc00'; ctx.lineWidth=15; ctx.stroke();
-}
-
-function setChance(m) { 
-    chance = (100/m).toFixed(2); 
-    document.getElementById('chance-value').innerText = chance + '%'; 
-    draw(); 
-}
-
-draw();
+let isRolling = false;
 
 document.getElementById('upgrade-btn').onclick = () => {
-    alert("Крутилка UPLOAD.CS2 готова! Джек, теперь деплой это на Vercel!");
+    if (isRolling) return;
+    isRolling = true;
+    
+    let roll = (Math.random() * 100).toFixed(2);
+    let duration = 3000; // 3 секунды крутится
+    let start = Date.now();
+
+    let timer = setInterval(() => {
+        let timePassed = Date.now() - start;
+        if (timePassed >= duration) {
+            clearInterval(timer);
+            isRolling = false;
+            if (parseFloat(roll) <= parseFloat(chance)) {
+                alert("ЕБАТЬ! ТЫ ВЫИГРАЛ! Выпало: " + roll);
+            } else {
+                alert("БРИТВА... Выпало: " + roll);
+            }
+            return;
+        }
+        // Тут можно добавить визуальный эффект вращения стрелки
+    }, 10);
 };
