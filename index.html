@@ -3,59 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPLOAD.CS2 | Premium Upgrade</title>
+    <title>UPLOAD.CS2 | HIGH ROLLER UPGRADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-[#08080c] text-white font-['Rajdhani']">
-    <nav class="flex justify-between items-center px-12 py-6 bg-[#0d0d12] border-b border-yellow-500/20 shadow-2xl">
-        <div class="text-3xl font-bold tracking-tighter">UPLOAD<span class="text-yellow-500">.CS2</span></div>
-        <div class="flex items-center gap-6">
-            <div class="flex flex-col items-end">
-                <span class="text-yellow-500 font-bold text-xl" id="balance">$500.00</span>
-                <span class="text-xs text-gray-500 uppercase tracking-widest" id="username">Guest_Player</span>
+<body class="bg-[#050508] text-white font-['Rajdhani'] selection:bg-yellow-500 selection:text-black overflow-x-hidden">
+    <nav class="flex justify-between items-center px-10 py-5 bg-[#0a0a0f]/80 backdrop-blur-md border-b border-yellow-500/10 sticky top-0 z-50">
+        <div class="text-3xl font-black tracking-tighter font-['Orbitron'] italic">UPLOAD<span class="text-yellow-500">.CS2</span></div>
+        <div class="flex items-center gap-8">
+            <div class="bg-[#11111a] px-5 py-2 rounded-xl border border-white/5 flex flex-col items-end">
+                <span class="text-yellow-500 font-black text-xl leading-tight" id="balance">$500.00</span>
+                <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold" id="username">OFFLINE_USER</span>
             </div>
-            <button onclick="openAuth()" class="bg-yellow-500 hover:bg-yellow-600 text-black px-8 py-2 rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(234,179,8,0.3)]">
-                AUTH
+            <button onclick="openAuth()" class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-10 py-3 rounded-xl font-black font-['Orbitron'] text-sm hover:shadow-[0_0_30px_rgba(234,179,8,0.4)] transition-all transform hover:-translate-y-1 active:scale-95 uppercase">
+                Auth System
             </button>
         </div>
     </nav>
 
-    <main class="container mx-auto mt-10 px-4 flex flex-col lg:flex-row gap-8">
-        <section class="lg:w-1/4 bg-[#0d0d12] p-4 rounded-3xl border border-white/5 h-[700px] flex flex-col">
-            <h2 class="text-gray-400 mb-4 font-bold uppercase tracking-widest text-sm">Your Inventory</h2>
-            <div id="inventory-grid" class="grid grid-cols-2 gap-3 overflow-y-auto pr-2 custom-scroll">
+    <main class="container mx-auto mt-12 px-6 grid grid-cols-12 gap-8 pb-20">
+        <section class="col-span-3 bg-[#0a0a0f] p-5 rounded-[2rem] border border-white/5 flex flex-col h-[750px] shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-gray-400 font-black uppercase tracking-widest text-xs">Inventory</h2>
+                <span class="text-[10px] bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded">3 Items</span>
+            </div>
+            <div id="inventory-grid" class="grid grid-cols-2 gap-4 overflow-y-auto pr-2 custom-scroll">
                 </div>
         </section>
 
-        <section class="lg:w-2/4 flex flex-col items-center justify-center">
-            <div class="relative w-[450px] h-[450px]">
-                <div class="absolute -top-10 left-1/2 -translate-x-1/2 flex gap-2">
-                    <button onclick="setSpeed('slow')" class="speed-btn active" id="speed-slow">SLOW</button>
-                    <button onclick="setSpeed('fast')" class="speed-btn" id="speed-fast">FAST</button>
-                    <button onclick="setSpeed('instant')" class="speed-btn" id="speed-instant">INSTANT</button>
-                </div>
+        <section class="col-span-6 flex flex-col items-center">
+            <div class="flex bg-[#0a0a0f] p-1.5 rounded-2xl border border-white/5 mb-10">
+                <button onclick="setSpeed('slow')" class="speed-btn active" id="speed-slow">SLOW-MO</button>
+                <button onclick="setSpeed('fast')" class="speed-btn" id="speed-fast">TURBO</button>
+                <button onclick="setSpeed('instant')" class="speed-btn" id="speed-instant">INSTANT</button>
+            </div>
 
-                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-12 bg-yellow-500 z-20 rounded-full shadow-[0_0_15px_#eab308]"></div>
-                <canvas id="wheel" width="450" height="450" class="rounded-full shadow-[0_0_50px_rgba(0,0,0,0.5)]"></canvas>
-                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-                    <div class="text-5xl font-bold text-yellow-500" id="chance-display">50%</div>
-                    <div class="text-xs text-gray-500 uppercase">Win Chance</div>
+            <div class="relative w-[500px] h-[500px]">
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-1.5 h-14 bg-yellow-500 z-30 rounded-full shadow-[0_0_25px_#eab308]">
+                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-4 bg-yellow-500 rotate-45 rounded-sm"></div>
+                </div>
+                
+                <canvas id="wheel" width="500" height="500" class="z-10 drop-shadow-[0_0_60px_rgba(0,0,0,1)] transition-transform"></canvas>
+                
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20 pointer-events-none">
+                    <div class="text-xs text-gray-500 uppercase tracking-widest font-black mb-1">Win Chance</div>
+                    <div class="text-6xl font-black text-white font-['Orbitron']" id="chance-display">50.0%</div>
+                    <div class="w-20 h-1 bg-yellow-500 mx-auto mt-4 rounded-full shadow-[0_0_15px_#eab308]"></div>
                 </div>
             </div>
             
-            <button id="upgrade-btn" class="mt-12 w-full max-w-md h-16 bg-gradient-to-b from-yellow-400 to-yellow-600 text-black text-2xl font-black rounded-2xl shadow-xl transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 uppercase tracking-tighter">
-                Perform Upgrade
+            <button id="upgrade-btn" class="mt-16 w-full max-w-lg h-20 bg-gradient-to-b from-yellow-400 via-yellow-500 to-yellow-600 text-black text-3xl font-black rounded-[2rem] shadow-[0_20px_50px_rgba(234,179,8,0.2)] hover:shadow-[0_20px_60px_rgba(234,179,8,0.4)] transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-30 uppercase font-['Orbitron'] italic tracking-tighter">
+                Execute Upgrade
             </button>
         </section>
 
-        <section class="lg:w-1/4 bg-[#0d0d12] p-6 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center">
-            <h2 class="text-gray-400 mb-8 font-bold uppercase tracking-widest text-sm">Target Item</h2>
-            <div id="target-display" class="w-full">
-                <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjx2jJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrY6i2lHj-ERvY273co-SclA8YVvS_FLsl73ng5S9v8zMmHBu73I8pSGKgf9f_6M" class="w-full drop-shadow-[0_0_30px_rgba(234,179,8,0.2)]">
-                <div class="text-2xl font-bold mt-4">AWP | Dragon Lore</div>
-                <div class="text-yellow-500 text-xl font-bold">$12,540.00</div>
+        <section class="col-span-3 bg-[#0a0a0f] p-8 rounded-[2rem] border border-white/5 flex flex-col items-center justify-center text-center shadow-2xl">
+            <h2 class="text-gray-400 mb-10 font-black uppercase tracking-widest text-xs">Target Asset</h2>
+            <div id="target-display" class="group">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-yellow-500/20 blur-[80px] rounded-full group-hover:bg-yellow-500/40 transition-all"></div>
+                    <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjx2jJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrY6i2lHj-ERvY273co-SclA8YVvS_FLsl73ng5S9v8zMmHBu73I8pSGKgf9f_6M" class="w-full relative z-10 transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="text-3xl font-black mt-8 font-['Orbitron']">DRAGON LORE</div>
+                <div class="text-yellow-500 text-2xl font-black mt-2 italic">$12,540.00</div>
             </div>
         </section>
     </main>
