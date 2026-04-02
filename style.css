@@ -1,27 +1,35 @@
 .speed-btn {
-    background: #15151e;
+    background: transparent;
     color: #4b5563;
-    padding: 4px 16px;
-    border-radius: 99px;
-    font-size: 11px;
-    font-weight: 800;
-    transition: 0.3s;
-    border: 1px solid transparent;
+    padding: 10px 24px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 900;
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'Orbitron';
+    letter-spacing: 1px;
 }
 .speed-btn.active {
     background: #eab308;
     color: black;
-    box-shadow: 0 0 15px rgba(234,179,8,0.3);
+    box-shadow: 0 10px 25px rgba(234,179,8,0.25);
 }
-.custom-scroll::-webkit-scrollbar { width: 4px; }
-.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar { width: 3px; }
 .custom-scroll::-webkit-scrollbar-thumb { background: #eab308; border-radius: 10px; }
 
 .item-card {
-    background: linear-gradient(145deg, #12121a 0%, #0d0d12 100%);
-    border: 1px solid rgba(255,255,255,0.03);
+    background: linear-gradient(180deg, #12121a 0%, #08080c 100%);
+    border: 1px solid rgba(255,255,255,0.02);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
-.item-card.selected {
-    border-color: #eab308;
-    background: rgba(234,179,8,0.05);
+.item-card:hover {
+    border-color: rgba(234,179,8,0.3);
+    transform: translateY(-5px);
 }
+
+@keyframes winGlow {
+    0% { box-shadow: 0 0 20px #eab308; }
+    50% { box-shadow: 0 0 60px #eab308; }
+    100% { box-shadow: 0 0 20px #eab308; }
+}
+.win-active { animation: winGlow 1s infinite; }
