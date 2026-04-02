@@ -1,0 +1,12 @@
+body { background: #0b0b0b; color: white; font-family: sans-serif; text-align: center; margin: 0; }
+header { display: flex; justify-content: space-between; padding: 20px; background: #141414; border-bottom: 2px solid #ffcc00; }
+.logo { font-size: 24px; font-weight: bold; }
+.logo span { color: #ffcc00; }
+.game-container { display: flex; justify-content: space-around; align-items: center; height: 400px; padding: 50px; }
+.item-slot { width: 120px; height: 120px; background: #1a1a1a; border: 2px dashed #333; line-height: 120px; border-radius: 10px; }
+.upgrade-circle { position: relative; width: 400px; height: 400px; }
+.chance-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+#chance-value { font-size: 40px; color: #ffcc00; font-weight: bold; }
+.controls { margin-top: 20px; }
+button { background: #333; color: white; border: 1px solid #444; padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 5px; }
+#upgrade-btn { background: #ffcc00; color: black; border: none; padding: 15px 60px; font-size: 20px; font-weight: bold; border-radius: 30px; display: block; margin: 20px auto; }
