@@ -174,3 +174,79 @@ document.getElementById('roll-btn').onclick = () => {
 function toggleAuthModal(s) { document.getElementById('auth-modal').classList.toggle('hidden', !s); }
 
 drawWheel(0, 0);
+// Переключение меню
+function toggleProfileMenu() {
+    const menu = document.getElementById('profile-menu');
+    menu.classList.toggle('hidden');
+}
+
+// Закрытие меню при клике мимо
+window.onclick = function(event) {
+    if (!event.target.closest('#user-bar')) {
+        document.getElementById('profile-menu').classList.add('hidden');
+    }
+}
+
+// Система статусов в зависимости от "депа" (баланса для тестов)
+function getStatus(balance) {
+    if (balance >= 500000) return "SQ-АРИСТОКРАТ";
+    if (balance >= 100000) return "SQ-МАГНАТ";
+    if (balance >= 10000) return "SQ-ФАРМИЛА";
+    return "НОВИЧОК";
+}
+
+// Обновление аватара
+async function updateAvatar() {
+    const url = document.getElementById('avatar-input').value;
+    if (!url) return;
+    
+    await db.collection('users').doc(auth.currentUser.uid).update({
+        avatarUrl: url
+    });
+    alert("Аватар обновлен!");
+}
+
+// ФУНКЦИЯ ФРИ СКИНА (для тестов)
+async function addFreeSkin() {
+    const freeSkin = {
+        name: "Glock-18 | High Beam",
+        price: 150,
+        img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0Ob3fDJ9_86nkL-HnvD8J_WDkm4GvZEi2L3D992s2Abm_UduY27ycY-Vcw9vYV_R-Vfsx7y908S-u8zNynU2pGB8slvV66mX"
+    };
+
+    await db.collection('users').doc(auth.currentUser.uid).update({
+        inventory: firebase.firestore.FieldValue.arrayUnion(freeSkin)
+    });
+    alert("Бесплатный скин добавлен в инвентарь!");
+}
+
+// Обнови функцию renderUI, чтобы она подтягивала аватар и статус
+function renderUI() {
+    if (!userData) return;
+    
+    const balance = userData.balance;
+    const status = getStatus(balance);
+    const name = auth.currentUser.email.split('@')[0].toUpperCase();
+
+    // Шапка и меню
+    document.getElementById('user-balance').innerText = balance.toLocaleString();
+    document.getElementById('menu-user-name').innerText = name;
+    document.getElementById('menu-user-status').innerText = status;
+
+    // Логика аватара
+    const navImg = document.getElementById('nav-avatar-img');
+    const navPlaceholder = document.getElementById('nav-avatar-placeholder');
+    
+    if (userData.avatarUrl) {
+        navImg.src = userData.avatarUrl;
+        navImg.classList.remove('hidden');
+        navPlaceholder.classList.add('hidden');
+    } else {
+        navImg.classList.add('hidden');
+        navPlaceholder.classList.remove('hidden');
+        navPlaceholder.innerText = name[0];
+    }
+
+    // Рендер инвентаря и остального (оставь как было...)
+    // ... твой старый код рендера инвентаря ...
+}
