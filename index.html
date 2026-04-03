@@ -2,108 +2,90 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPLOAD | CS2</title>
+    <title>UPLOAD | Real-Money Upgrader</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-[#060607] text-[#ececec] font-['Inter'] overflow-hidden">
+<body class="bg-[#050505] text-[#eee] font-['Geologica'] overflow-hidden">
 
-    <div class="h-14 bg-[#0a0a0b] border-b border-white/[0.03] flex items-center overflow-hidden">
-        <div id="live-history" class="flex gap-2 px-4 animate-scroll whitespace-nowrap">
-            </div>
+    <div class="h-12 bg-[#080808] border-b border-white/[0.03] flex items-center overflow-hidden">
+        <div id="live-feed" class="flex gap-2 px-4 animate-scroll whitespace-nowrap"></div>
     </div>
 
-    <header class="h-16 flex items-center justify-between px-8 border-b border-white/[0.02] bg-[#080809]">
-        <div class="flex items-center gap-6">
-            <h1 onclick="showPage('main')" class="text-xl font-[900] tracking-tighter uppercase italic cursor-pointer text-yellow-500 hover:opacity-80 transition-all">UPLOAD</h1>
-            
-            <div class="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-white/5">
-                <div class="w-4 h-4 bg-yellow-500 rounded-sm flex items-center justify-center text-[8px] text-black font-black">SQ</div>
-                <span id="user-balance" class="text-sm font-black italic">0.00</span>
+    <header class="h-16 flex items-center justify-between px-10 border-b border-white/[0.02]">
+        <div class="flex items-center gap-8">
+            <h1 onclick="location.reload()" class="text-xl font-black italic tracking-tighter text-yellow-500 cursor-pointer">UPLOAD</h1>
+            <div class="flex items-center gap-3 bg-white/[0.03] border border-white/5 px-3 py-1.5 rounded-xl">
+                <div class="w-5 h-5 bg-yellow-500 rounded-lg flex items-center justify-center text-[10px] text-black font-black italic">SQ</div>
+                <span id="balance" class="text-sm font-black">0.00</span>
+                <button onclick="openDeposit()" class="ml-2 bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded text-[10px] font-black hover:bg-yellow-500 hover:text-black transition-all">+ TOP UP</button>
             </div>
         </div>
 
-        <div onclick="showPage('profile')" class="flex items-center gap-3 cursor-pointer group">
+        <div id="auth-section">
+            <button onclick="login()" class="bg-white text-black px-5 py-2 rounded-xl text-xs font-black uppercase italic">Login with Google</button>
+        </div>
+        <div id="user-section" class="hidden flex items-center gap-4 cursor-pointer" onclick="showPage('profile')">
             <div class="text-right">
-                <div id="display-name" class="text-[11px] font-black uppercase italic group-hover:text-yellow-500 transition-colors">Player</div>
-                <div class="text-[9px] text-gray-500 font-bold">LVL <span id="user-level">1</span></div>
+                <div id="username" class="text-[11px] font-black uppercase">Loading...</div>
+                <div class="text-[9px] text-gray-500 uppercase font-bold">LVL <span id="lvl">1</span></div>
             </div>
-            <div id="user-avatar" class="w-9 h-9 bg-yellow-500 rounded-lg flex items-center justify-center text-black font-black italic shadow-lg shadow-yellow-500/10 text-sm">?</div>
+            <img id="avatar" src="" class="w-10 h-10 rounded-xl border border-white/10">
         </div>
     </header>
 
-    <div id="page-main" class="flex h-[calc(100vh-120px)] p-6 gap-6">
-        
-        <section class="w-[300px] flex flex-col bg-[#0a0a0b] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+    <main id="main-app" class="flex h-[calc(100vh-112px)] p-6 gap-6">
+        <div class="w-[280px] bg-[#080808] border border-white/5 rounded-3xl flex flex-col overflow-hidden">
             <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
-                <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest italic">Inventory</span>
-                <button onclick="sellAllItems()" class="text-[9px] font-black text-red-500/70 hover:text-red-500 uppercase transition-all">Sell All</button>
+                <span class="text-[10px] font-black text-gray-500 uppercase italic">Inventory</span>
+                <button onclick="sellAll()" class="text-[9px] font-black text-red-500/60 hover:text-red-500">SELL ALL</button>
             </div>
-            <div id="grid-my" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2 custom-scroll">
-                </div>
-        </section>
+            <div id="my-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2 no-scrollbar"></div>
+        </div>
 
-        <section class="flex-1 flex flex-col items-center justify-center relative">
-            <div class="flex gap-1.5 mb-8 bg-black/50 p-1 rounded-xl border border-white/5">
-                <button onclick="setSpeed('slow')" id="speed-slow" class="compact-speed-btn active">Slow</button>
-                <button onclick="setSpeed('fast')" id="speed-fast" class="compact-speed-btn">Fast</button>
-                <button onclick="setSpeed('instant')" id="speed-instant" class="compact-speed-btn !text-yellow-500">Instant</button>
+        <div class="flex-1 flex flex-col items-center justify-center relative">
+            <div class="flex gap-1 mb-8 bg-black p-1 rounded-xl border border-white/5">
+                <button onclick="setSpeed(3000)" class="s-btn active">Slow</button>
+                <button onclick="setSpeed(1000)" class="s-btn">Fast</button>
+                <button onclick="setSpeed(100)" class="s-btn text-yellow-500">Instant</button>
             </div>
 
-            <div class="relative w-[320px] h-[320px] flex items-center justify-center">
+            <div class="relative w-[340px] h-[340px] flex items-center justify-center">
                 <svg class="absolute inset-0 w-full h-full -rotate-90">
-                    <circle cx="160" cy="160" r="145" fill="none" stroke="#111113" stroke-width="12" />
-                    <circle id="ring-progress" cx="160" cy="160" r="145" fill="none" stroke="#eab308" stroke-width="12" 
-                            stroke-dasharray="911" stroke-dashoffset="911" stroke-linecap="round" class="transition-all duration-700 shadow-glow" />
+                    <circle cx="170" cy="170" r="155" fill="none" stroke="#0e0e0e" stroke-width="14" />
+                    <circle id="ring" cx="170" cy="170" r="155" fill="none" stroke="#eab308" stroke-width="14" 
+                            stroke-dasharray="974" stroke-dashoffset="974" stroke-linecap="round" class="transition-all duration-500" />
                 </svg>
                 <div class="text-center">
-                    <div id="chance-text" class="text-5xl font-black italic leading-none">0%</div>
-                    <div class="text-[9px] text-gray-600 font-bold uppercase tracking-[0.3em] mt-3 italic">Upgrade Chance</div>
+                    <div id="chance" class="text-6xl font-black italic">0%</div>
+                    <div class="text-[10px] text-gray-600 font-bold uppercase tracking-widest mt-2">Chance</div>
                 </div>
             </div>
 
             <div class="flex gap-2 mt-8">
-                <button onclick="setChancePreset(1)" class="p-btn italic">1%</button>
-                <button onclick="setChancePreset(10)" class="p-btn italic">10%</button>
-                <button onclick="setChancePreset(25)" class="p-btn italic">25%</button>
-                <button onclick="setChancePreset(50)" class="p-btn italic">50%</button>
-                <button onclick="setChancePreset(75)" class="p-btn italic">75%</button>
+                <button onclick="setPreset(1.5)" class="p-btn">1.5x</button>
+                <button onclick="setPreset(2)" class="p-btn">2x</button>
+                <button onclick="setPreset(5)" class="p-btn">5x</button>
+                <button onclick="setPreset(10)" class="p-btn">10x</button>
             </div>
 
-            <button id="btn-execute" disabled class="mt-10 upgrade-main-btn">Select Items</button>
-        </section>
-
-        <section class="w-[300px] flex flex-col bg-[#0a0a0b] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-            <div class="p-4 border-b border-white/5 bg-white/[0.01]">
-                <input type="text" id="shop-search" oninput="searchShop()" placeholder="Search CS2 skins..." class="w-full bg-[#111113] border border-white/5 rounded-lg px-3 py-2 text-[10px] focus:outline-none focus:border-yellow-500/40">
-            </div>
-            <div id="grid-shop" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2 custom-scroll">
-                </div>
-        </section>
-    </div>
-
-    <div id="page-profile" class="hidden h-[calc(100vh-80px)] p-10 max-w-6xl mx-auto animate-fade-in">
-        <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-4 bg-[#0a0a0b] border border-white/5 rounded-3xl p-8 text-center relative overflow-hidden">
-                <div class="w-24 h-24 bg-yellow-500 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl font-black italic text-black shadow-2xl">?</div>
-                <h2 id="prof-name" class="text-2xl font-black italic uppercase">Player</h2>
-                <div class="w-full bg-white/5 h-2 rounded-full mt-8 overflow-hidden">
-                    <div id="xp-bar" class="bg-yellow-500 h-full transition-all" style="width: 30%"></div>
-                </div>
-                <p class="text-[9px] font-bold text-gray-500 mt-2 uppercase italic tracking-widest">Level <span class="text-yellow-500">1</span></p>
-            </div>
-
-            <div class="col-span-8 bg-[#0a0a0b] border border-white/5 rounded-3xl p-8 flex flex-col items-center justify-center relative">
-                <span class="absolute top-6 left-8 text-[9px] font-black text-gray-600 uppercase tracking-widest italic">Personal Best Drop</span>
-                <img id="best-drop-img" src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56" class="w-48 h-32 object-contain drop-shadow-[0_20px_40px_rgba(234,179,8,0.2)]">
-                <h4 id="best-drop-name" class="text-lg font-black italic uppercase mt-4">AWP | Dragon Lore</h4>
-            </div>
+            <button id="upgrade-btn" disabled onclick="executeUpgrade()" class="mt-10 upgrade-btn">Upgrade Skin</button>
         </div>
+
+        <div class="w-[280px] bg-[#080808] border border-white/5 rounded-3xl flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-white/5">
+                <input type="text" oninput="search(this.value)" placeholder="Search target..." class="w-full bg-black border border-white/5 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-yellow-500/30">
+            </div>
+            <div id="shop-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2 no-scrollbar"></div>
+        </div>
+    </main>
+
+    <div id="modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-[100] flex items-center justify-center">
+        <div id="modal-content" class="text-center animate-pop"></div>
     </div>
 
     <script src="app.js"></script>
