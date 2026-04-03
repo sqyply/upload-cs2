@@ -1,17 +1,29 @@
 const UI = {
-    // ...
-    runUpgradeAnimation(isWin, callback) {
-        const ring = document.getElementById('progress-ring');
-        let duration = 3000; // По умолчанию Slow
-        
-        if (currentSpeed === 'fast') duration = 1000;
-        if (currentSpeed === 'instant') duration = 0;
+    showPage(page) {
+        document.getElementById('page-main').classList.toggle('hidden', page !== 'main');
+        document.getElementById('page-profile').classList.toggle('hidden', page !== 'profile');
+    },
 
-        ring.style.transition = `all ${duration}ms cubic-bezier(0.4, 0, 0.2, 1)`;
-        
-        // Сама анимация кручения (визуальный эффект)
-        // ... логика прокрута ...
-        
-        setTimeout(callback, duration);
+    renderSkins(containerId, skins, type, selected) {
+        const div = document.getElementById(containerId);
+        div.innerHTML = skins.map(s => `
+            <div onclick="window.handleSelect('${s.name}', '${type}')" 
+                 class="skin-card p-3 rounded-2xl bg-white/5 border border-white/5 flex items-center gap-3 cursor-pointer transition-all ${selected?.name === s.name ? 'selected' : ''}">
+                <img src="${s.img}" class="w-10 h-10 object-contain">
+                <div>
+                    <div class="text-[9px] font-black text-gray-400 uppercase">${s.name}</div>
+                    <div class="text-yellow-500 font-black text-xs italic">${s.price.toLocaleString()} SQ</div>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    updateCircle(chance) {
+        const ring = document.getElementById('progress-ring');
+        const dash = 942 - (942 * chance / 100);
+        ring.style.strokeDashoffset = dash;
+        document.getElementById('chance-display').innerText = chance.toFixed(1) + '%';
     }
-}
+};
+
+window.showPage = UI.showPage;
