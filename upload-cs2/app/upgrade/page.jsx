@@ -31,9 +31,19 @@ export default function UpgradePage() {
     const unsub = onAuthStateChanged(auth, async (u) => {
       if (!u) { router.push("/auth"); return; }
       setUser(u);
-      const snap = await getDoc(doc(db, "users", u.uid));
-      if (snap.exists()) setBalance(snap.data().balance);
-    });
+      const ref = doc(db, "users", u.uid);
+const snap = await getDoc(ref);
+
+if (snap.exists()) {
+  setBalance(snap.data().balance ?? 0);
+} else {
+  await setDoc(ref, {
+    email: u.email,
+    balance: 100.0,
+    createdAt: new Date().toISOString(),
+  });
+  setBalance(100.0);
+}
     return () => unsub();
   }, []);
 
