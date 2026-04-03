@@ -3,112 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPLOAD.CS2 | Upgrade</title>
+    <title>UPLOAD.CS2 | Профессиональный Апгрейд</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,900;1,900&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Montserrat', sans-serif; background-color: #0b0b0b; color: white; overflow-x: hidden; }
-        .speed-btn.active { background: #eab308 !important; color: black !important; }
-        .chance-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; }
-        .chance-btn:hover { border-color: #eab308; }
-        .animate-spin-custom { transition: stroke-dashoffset 3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .skin-card.selected { border-color: #eab308 !important; box-shadow: 0 0 15px rgba(234,179,8,0.2); }
-    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <nav class="flex justify-between items-center px-10 py-5 bg-[#0f0f0f] border-b border-yellow-500/10">
-        <div onclick="showPage('main')" class="text-2xl font-black text-yellow-500 cursor-pointer italic">UPLOAD.CS2</div>
+<body class="bg-[#0b0b0b] text-white font-['Montserrat'] overflow-x-hidden">
+
+    <div class="h-16 bg-[#0f0f0f] border-b border-white/5 flex items-center overflow-hidden relative">
+        <div class="absolute left-4 z-10 bg-yellow-500 text-black text-[10px] font-black px-2 py-1 rounded italic">LIVE DROP</div>
+        <div id="live-drop-track" class="flex gap-4 ml-24 animate-scroll whitespace-nowrap">
+            </div>
+    </div>
+
+    <nav class="flex justify-between items-center px-10 py-5 bg-[#0d0d0d] border-b border-yellow-500/10 shadow-2xl">
+        <div onclick="showPage('main')" class="text-2xl font-black text-yellow-500 cursor-pointer italic tracking-tighter">UPLOAD.CS2</div>
+        
         <div class="flex items-center gap-6">
             <div class="bg-black/40 px-5 py-2 rounded-xl border border-white/5 flex items-center gap-2">
-                <span id="nav-balance" class="font-black text-yellow-500 text-lg">0</span>
-                <span class="text-[10px] text-gray-500 font-bold">SQ</span>
+                <span id="nav-balance" class="font-black text-yellow-500 text-lg italic">0</span>
+                <span class="text-[10px] text-gray-500 font-bold uppercase">SQ</span>
             </div>
-            <button onclick="showPage('profile')" class="bg-yellow-500 text-black px-6 py-2 rounded-xl font-black text-xs uppercase">Профиль</button>
+            <div onclick="showPage('profile')" class="flex items-center gap-3 cursor-pointer group">
+                <div class="text-right">
+                    <div id="nav-username" class="text-xs font-black uppercase group-hover:text-yellow-500 transition-colors">ФАМА</div>
+                    <div class="text-[9px] text-yellow-500 font-bold">LVL <span id="nav-level">1</span></div>
+                </div>
+                <div class="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center text-black font-black italic">?</div>
+            </div>
         </div>
     </nav>
 
-    <main id="page-main" class="p-8">
-        <div class="flex justify-between gap-10 max-w-[1400px] mx-auto">
-            <div class="w-1/4 bg-[#111] p-5 rounded-[32px] border border-white/5">
-                <h2 class="text-xs font-black uppercase text-gray-500 mb-4 tracking-widest">Твой склад</h2>
-                <div id="inventory-list" class="space-y-2 max-h-[600px] overflow-y-auto pr-2"></div>
+    <main id="page-main" class="p-8 max-w-[1600px] mx-auto grid grid-cols-12 gap-8">
+        
+        <section class="col-span-3 bg-[#111111] rounded-[32px] p-6 border border-white/5 relative overflow-hidden">
+            <div class="awp-bg-left"></div> <h2 class="text-[10px] font-black uppercase text-gray-500 mb-6 tracking-[0.2em] relative z-10 italic">Ваш инвентарь</h2>
+            <div id="inventory-list" class="space-y-3 relative z-10 overflow-y-auto max-h-[600px] custom-scroll"></div>
+        </section>
+
+        <section class="col-span-6 flex flex-col items-center justify-center">
+            <div class="flex gap-2 mb-10 bg-black/40 p-1.5 rounded-2xl border border-white/5">
+                <button onclick="setSpeed('slow')" id="speed-slow" class="speed-btn active">Slow</button>
+                <button onclick="setSpeed('fast')" id="speed-fast" class="speed-btn">Fast</button>
+                <button onclick="setSpeed('instant')" id="speed-instant" class="speed-btn !text-yellow-500">Instant</button>
             </div>
 
-            <div class="flex-1 flex flex-col items-center justify-center">
-                <div class="flex gap-2 mb-8 bg-black/40 p-1 rounded-2xl border border-white/5">
-                    <button onclick="setSpeed('slow')" id="speed-slow" class="speed-btn active px-6 py-2 rounded-xl text-[10px] font-black uppercase italic">Slow</button>
-                    <button onclick="setSpeed('fast')" id="speed-fast" class="speed-btn px-6 py-2 rounded-xl text-[10px] font-black uppercase italic">Fast</button>
-                    <button onclick="setSpeed('instant')" id="speed-instant" class="speed-btn px-6 py-2 rounded-xl text-[10px] font-black uppercase italic">Instant</button>
+            <div class="relative w-96 h-96 mb-12 flex items-center justify-center">
+                <svg class="w-full h-full -rotate-90">
+                    <circle cx="192" cy="192" r="180" fill="none" stroke="#1a1a1a" stroke-width="14"/>
+                    <circle id="progress-ring" cx="192" cy="192" r="180" fill="none" stroke="#eab308" stroke-width="14" stroke-dasharray="1130" stroke-dashoffset="1130" stroke-linecap="round" class="transition-all duration-700 ease-out"/>
+                </svg>
+                <div class="absolute text-center">
+                    <div id="chance-display" class="text-7xl font-black italic italic">0%</div>
+                    <div class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.3em] mt-2">Шанс успеха</div>
                 </div>
-
-                <div class="relative w-80 h-80 mb-10">
-                    <svg class="w-full h-full transform -rotate-90">
-                        <circle cx="160" cy="160" r="150" stroke="rgba(255,255,255,0.05)" stroke-width="12" fill="transparent" />
-                        <circle id="progress-ring" cx="160" cy="160" r="150" stroke="#eab308" stroke-width="12" fill="transparent" 
-                                stroke-dasharray="942" stroke-dashoffset="942" class="animate-spin-custom" />
-                    </svg>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span id="chance-display" class="text-6xl font-black italic">0%</span>
-                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Шанс успеха</span>
-                    </div>
-                </div>
-
-                <div class="flex gap-3 mb-10">
-                    <button onclick="setChancePreset(1)" class="chance-btn px-4 py-2 rounded-lg text-xs font-black">1%</button>
-                    <button onclick="setChancePreset(15)" class="chance-btn px-4 py-2 rounded-lg text-xs font-black">15%</button>
-                    <button onclick="setChancePreset(35)" class="chance-btn px-4 py-2 rounded-lg text-xs font-black">35%</button>
-                    <button onclick="setChancePreset(50)" class="chance-btn px-4 py-2 rounded-lg text-xs font-black">50%</button>
-                    <button onclick="setChancePreset(75)" class="chance-btn px-4 py-2 rounded-lg text-xs font-black">75%</button>
-                </div>
-
-                <button id="upgrade-btn" disabled class="bg-yellow-500 text-black px-12 py-5 rounded-[24px] font-black uppercase italic text-lg shadow-2xl shadow-yellow-500/20 disabled:opacity-50 disabled:grayscale">
-                    Выберите скины
-                </button>
             </div>
 
-            <div class="w-1/4 bg-[#111] p-5 rounded-[32px] border border-white/5">
-                <h2 class="text-xs font-black uppercase text-gray-500 mb-4 tracking-widest">Выбери цель</h2>
-                <div id="target-list" class="space-y-2 max-h-[600px] overflow-y-auto pr-2"></div>
+            <div class="flex gap-3 mb-10">
+                <button onclick="setChancePreset(1)" class="chance-btn">1%</button>
+                <button onclick="setChancePreset(15)" class="chance-btn">15%</button>
+                <button onclick="setChancePreset(35)" class="chance-btn">35%</button>
+                <button onclick="setChancePreset(50)" class="chance-btn">50%</button>
+                <button onclick="setChancePreset(75)" class="chance-btn">75%</button>
             </div>
-        </div>
+
+            <button id="upgrade-btn" disabled class="upgrade-main-btn">Выберите предметы</button>
+        </section>
+
+        <section class="col-span-3 bg-[#111111] rounded-[32px] p-6 border border-white/5 relative overflow-hidden">
+            <div class="awp-bg-right"></div> <h2 class="text-[10px] font-black uppercase text-gray-500 mb-6 tracking-[0.2em] relative z-10 italic">Цель апгрейда</h2>
+            <div id="target-list" class="space-y-3 relative z-10 overflow-y-auto max-h-[600px] custom-scroll"></div>
+        </section>
     </main>
 
-    <div id="page-profile" class="hidden p-8 max-w-[1200px] mx-auto animate-fade-in">
+    <div id="page-profile" class="hidden p-10 max-w-[1200px] mx-auto animate-fade-in">
         <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-4 bg-[#141414] p-8 rounded-[32px] border border-white/5 relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl font-black italic">VIP</div>
-                <div class="flex flex-col items-center">
-                    <div class="w-32 h-32 bg-yellow-500 rounded-[40px] flex items-center justify-center text-5xl font-black text-black mb-6 italic">?</div>
-                    <h1 class="text-3xl font-black italic mb-1 uppercase tracking-tighter">ФАМА</h1>
-                    <div class="w-full bg-white/5 h-2 rounded-full mt-4 mb-2 overflow-hidden">
-                        <div id="xp-bar" class="bg-yellow-500 h-full transition-all duration-500" style="width: 45%"></div>
-                    </div>
-                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-6">Уровень <span id="user-level" class="text-yellow-500">12</span> — <span id="user-xp">450</span>/1000 XP</p>
-                    <button class="w-full bg-yellow-500 text-black py-4 rounded-2xl font-black uppercase tracking-widest text-sm">Пополнить</button>
+            <div class="col-span-4 bg-[#141414] p-8 rounded-[40px] border border-white/5 relative overflow-hidden text-center">
+                <div class="absolute top-0 right-0 p-4 opacity-5 text-7xl font-black italic">VIP</div>
+                <div class="w-32 h-32 bg-yellow-500 rounded-[40px] mx-auto mb-6 flex items-center justify-center text-5xl font-black text-black italic shadow-2xl shadow-yellow-500/20">?</div>
+                <h1 id="prof-username" class="text-3xl font-black italic mb-2 uppercase">ФАМА</h1>
+                
+                <div class="w-full bg-white/5 h-3 rounded-full mt-6 mb-2 overflow-hidden border border-white/5">
+                    <div id="xp-bar" class="bg-yellow-500 h-full transition-all duration-1000 shadow-[0_0_15px_rgba(234,179,8,0.5)]" style="width: 0%"></div>
                 </div>
+                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest italic">Уровень <span id="prof-level" class="text-yellow-500">1</span> — <span id="prof-xp">0</span> / 1000 XP</p>
             </div>
 
-            <div class="col-span-5 bg-[#141414] p-8 rounded-[32px] border border-white/5 flex flex-col items-center justify-center relative">
-                <p class="absolute top-6 left-8 text-gray-500 text-[10px] font-bold uppercase italic">Best Drop</p>
-                <img id="best-drop-img" src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56" class="w-48 h-48 object-contain drop-shadow-[0_20px_50px_rgba(234,179,8,0.2)] mb-4">
-                <h3 id="best-drop-name" class="font-black italic text-xl uppercase">Dragon Lore</h3>
-                <span id="best-drop-price" class="text-yellow-500 font-black text-sm italic">1,250,000 SQ</span>
+            <div class="col-span-5 bg-[#141414] p-8 rounded-[40px] border border-white/5 flex flex-col items-center justify-center relative">
+                <p class="absolute top-6 left-8 text-gray-500 text-[10px] font-bold uppercase italic opacity-40">Best Drop</p>
+                <img id="best-drop-img" src="" class="w-56 h-56 object-contain drop-shadow-[0_30px_60px_rgba(234,179,8,0.3)]">
+                <h3 id="best-drop-name" class="font-black italic text-2xl uppercase mt-4">---</h3>
+                <span id="best-drop-price" class="text-yellow-500 font-black text-sm italic">0 SQ</span>
             </div>
 
-            <div class="col-span-3 space-y-4 text-center">
-                <div class="bg-[#141414] p-6 rounded-[28px] border border-white/5">
-                    <p class="text-gray-500 text-[10px] font-bold uppercase mb-2 italic">Выведено</p>
-                    <p class="text-2xl font-black italic">0 <span class="text-xs text-yellow-500 font-normal">SQ</span></p>
-                </div>
-                <div class="bg-[#141414] p-6 rounded-[28px] border border-white/5">
+            <div class="col-span-3 space-y-4">
+                <div class="bg-[#141414] p-8 rounded-[35px] border border-white/5 text-center">
                     <p class="text-gray-500 text-[10px] font-bold uppercase mb-2 italic">Апгрейдов</p>
-                    <p id="stats-total" class="text-2xl font-black text-yellow-500 italic">171</p>
+                    <p id="stat-total" class="text-4xl font-black text-yellow-500 italic">0</p>
+                </div>
+                <div class="bg-red-500/5 p-8 rounded-[35px] border border-red-500/20 text-center cursor-pointer hover:bg-red-500/10 transition-all">
+                    <p class="text-red-500 font-black uppercase text-xs tracking-widest italic">Выйти</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="test-mode.js"></script>
+    <script src="config.js"></script>
     <script src="ui.js"></script>
     <script src="app.js"></script>
 </body>
