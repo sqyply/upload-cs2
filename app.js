@@ -1,119 +1,132 @@
 // app.js
+const CONFIG = {
+    testMode: true,
+    user: { name: 'JACK_BOSS', balance: 1000000.0, avatar: 'J' },
+    mySkins: [
+        { id: 1, name: 'AK-47 | Safari Mesh', price: 10, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' },
+        { id: 2, name: 'AWP | Dragon Lore', price: 1250000, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' },
+        { id: 3, name: 'Butterfly | Doppler', price: 180000, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' }
+    ]
+};
+
 let state = {
     selectedMy: null,
     selectedTarget: null,
+    chance: 0,
     speed: 'slow',
-    allSkins: []
+    isUpgrading: false
 };
 
-window.addEventListener('DOMContentLoaded', async () => {
-    initLiveDrop();
-    if (TEST_CONFIG.enabled) {
-        applyTestData();
-    }
-    await loadGlobalSkins();
-});
+// Инициализация
+window.onload = async () => {
+    updateUI();
+    renderGrids();
+    initHistory();
+};
 
-// Наполнение ленты дропа (фейковые данные для вида)
-function initLiveDrop() {
-    const track = document.getElementById('live-drop-container');
-    const fakeDrops = Array(40).fill(TEST_CONFIG.inventory[0]);
-    track.innerHTML = fakeDrops.map(item => `
-        <div class="drop-item">
-            <img src="${item.img}" class="w-12 h-12 object-contain drop-shadow-lg">
+function updateUI() {
+    document.getElementById('user-balance').innerText = CONFIG.user.balance.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    document.getElementById('display-name').innerText = CONFIG.user.name;
+    document.getElementById('user-avatar').innerText = CONFIG.user.avatar;
+}
+
+function renderGrids() {
+    const myGrid = document.getElementById('grid-my');
+    myGrid.innerHTML = CONFIG.mySkins.map(item => `
+        <div class="item-card" onclick="selectMy(${item.id})" id="my-${item.id}">
+            <img src="${item.img}" class="w-full h-16 object-contain mb-2">
+            <div class="text-[9px] font-bold text-gray-500 uppercase truncate">${item.name}</div>
+            <div class="text-xs font-black italic text-yellow-500 mt-1">${item.price.toLocaleString()} SQ</div>
         </div>
-    `).join('') + track.innerHTML;
-}
+    `).join('');
 
-function applyTestData() {
-    document.getElementById('nav-balance').innerText = TEST_CONFIG.user.balance.toLocaleString() + " SQ";
-    document.getElementById('nav-username').innerText = TEST_CONFIG.user.username;
-    document.getElementById('nav-level').innerText = TEST_CONFIG.user.level;
-    
-    // Профиль
-    document.getElementById('prof-level').innerText = TEST_CONFIG.user.level;
-    document.getElementById('prof-xp').innerText = TEST_CONFIG.user.xp;
-    document.getElementById('xp-bar').style.width = (TEST_CONFIG.user.xp / 1000 * 100) + "%";
-    document.getElementById('best-drop-img').src = TEST_CONFIG.bestDrop.img;
-    document.getElementById('best-drop-name').innerText = TEST_CONFIG.bestDrop.name;
-    document.getElementById('best-drop-price').innerText = TEST_CONFIG.bestDrop.price.toLocaleString() + " SQ";
-
-    renderInventory(TEST_CONFIG.inventory);
-}
-
-async function loadGlobalSkins() {
-    const res = await fetch('https://bymykel.github.io/CSGO-API/api/ru/skins.json');
-    const data = await res.json();
-    state.allSkins = data.slice(0, 100).map(s => ({
-        name: s.name,
-        img: s.image,
-        price: Math.floor(Math.random() * 10000) + 100
-    })).sort((a,b) => b.price - a.price);
-    
-    renderTargetList(state.allSkins);
-}
-
-function renderInventory(items) {
-    const list = document.getElementById('inventory-list');
-    list.innerHTML = items.map(item => `
-        <div onclick="selectMy('${item.name}')" id="inv-${item.name}" class="skin-card p-4 rounded-3xl flex items-center gap-4 cursor-pointer">
-            <img src="${item.img}" class="w-14 h-14 object-contain">
-            <div>
-                <div class="text-[10px] font-black uppercase text-gray-400 italic">${item.name}</div>
-                <div class="text-yellow-500 font-black italic text-sm">${item.price.toLocaleString()} SQ</div>
-            </div>
+    // Фейковый магазин (можно подключить реальное API позже)
+    const shopGrid = document.getElementById('grid-shop');
+    const shopItems = [
+        { id: 101, name: 'M4A4 | Howl', price: 550000, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' },
+        { id: 102, name: 'AWP | Gungnir', price: 1350000, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' }
+    ];
+    shopGrid.innerHTML = shopItems.map(item => `
+        <div class="item-card" onclick="selectTarget(${item.id})" id="shop-${item.id}">
+            <img src="${item.img}" class="w-full h-16 object-contain mb-2">
+            <div class="text-[9px] font-bold text-gray-500 uppercase truncate">${item.name}</div>
+            <div class="text-xs font-black italic text-yellow-500 mt-1">${item.price.toLocaleString()} SQ</div>
         </div>
     `).join('');
 }
 
-function renderTargetList(items) {
-    const list = document.getElementById('target-list');
-    list.innerHTML = items.map(item => `
-        <div onclick="selectTarget('${item.name}')" id="target-${item.name}" class="skin-card p-4 rounded-3xl flex items-center gap-4 cursor-pointer">
-            <img src="${item.img}" class="w-14 h-14 object-contain">
-            <div>
-                <div class="text-[10px] font-black uppercase text-gray-400 italic">${item.name}</div>
-                <div class="text-yellow-500 font-black italic text-sm">${item.price.toLocaleString()} SQ</div>
-            </div>
-        </div>
-    `).join('');
-}
-
-window.selectMy = (name) => {
-    state.selectedMy = TEST_CONFIG.inventory.find(i => i.name === name);
-    document.querySelectorAll('#inventory-list .skin-card').forEach(el => el.classList.remove('selected'));
-    document.getElementById(`inv-${name}`).classList.add('selected');
-    updateUpgradeLogic();
+window.selectMy = (id) => {
+    state.selectedMy = CONFIG.mySkins.find(i => i.id === id);
+    document.querySelectorAll('#grid-my .item-card').forEach(el => el.classList.remove('selected'));
+    document.getElementById(`my-${id}`).classList.add('selected');
+    
+    document.getElementById('selected-my-container').classList.add('hidden');
+    document.getElementById('selected-my-item').classList.remove('hidden');
+    document.getElementById('my-item-img').src = state.selectedMy.img;
+    document.getElementById('my-item-name').innerText = state.selectedMy.name;
+    document.getElementById('my-item-price').innerText = state.selectedMy.price.toLocaleString() + ' SQ';
+    
+    calculateChance();
 };
 
-window.selectTarget = (name) => {
-    state.selectedTarget = state.allSkins.find(i => i.name === name);
-    document.querySelectorAll('#target-list .skin-card').forEach(el => el.classList.remove('selected'));
-    document.getElementById(`target-${name}`).classList.add('selected');
-    updateUpgradeLogic();
+window.selectTarget = (id) => {
+    // В реале тут будет поиск по массиву магазина
+    state.selectedTarget = { id: 101, name: 'M4A4 | Howl', price: 550000, img: '...' }; // Упрощено для примера
+    calculateChance();
 };
 
-function updateUpgradeLogic() {
+function calculateChance() {
     if (state.selectedMy && state.selectedTarget) {
-        let chance = (state.selectedMy.price / state.selectedTarget.price) * 100;
-        chance = Math.min(chance, 80).toFixed(1);
+        state.chance = (state.selectedMy.price / state.selectedTarget.price) * 100;
+        state.chance = Math.min(state.chance, 95).toFixed(2);
         
-        document.getElementById('chance-display').innerText = chance + "%";
-        const ring = document.getElementById('progress-ring');
-        ring.style.strokeDashoffset = 1319 - (1319 * chance / 100);
+        document.getElementById('chance-text').innerText = state.chance + '%';
+        const ring = document.getElementById('ring-progress');
+        const offset = 1036 - (1036 * state.chance / 100);
+        ring.style.strokeDashoffset = offset;
         
-        const btn = document.getElementById('upgrade-btn');
-        btn.disabled = false;
-        btn.innerText = `UPGRADE FOR ${state.selectedMy.price.toLocaleString()} SQ`;
+        document.getElementById('btn-execute').disabled = false;
     }
 }
 
-window.showPage = (p) => {
-    document.getElementById('page-main').classList.toggle('hidden', p !== 'main');
-    document.getElementById('page-profile').classList.toggle('hidden', p !== 'profile');
+document.getElementById('btn-execute').onclick = () => {
+    if (state.isUpgrading) return;
+    state.isUpgrading = true;
+    document.getElementById('btn-execute').disabled = true;
+    
+    const ticker = document.getElementById('ticker');
+    ticker.classList.remove('hidden');
+    
+    // Результат (0 - 100)
+    const resultPoint = Math.random() * 100;
+    const isWin = resultPoint <= state.chance;
+    const finalRotation = 360 * 5 + (resultPoint * 3.6); // 5 полных оборотов + точка
+    
+    ticker.style.transform = `rotate(${finalRotation}deg)`;
+    
+    setTimeout(() => {
+        showResult(isWin);
+    }, 3200);
 };
 
-window.setSpeed = (s) => {
-    state.speed = s;
-    document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('active', b.id === 'speed-'+s));
+function showResult(win) {
+    const modal = document.getElementById('result-modal');
+    const title = document.getElementById('result-title');
+    
+    modal.classList.remove('hidden');
+    if (win) {
+        title.innerText = 'WIN';
+        title.className = 'text-[120px] font-black italic text-yellow-500 italic mb-4 win-animate';
+        document.getElementById('result-img').src = state.selectedTarget.img;
+        document.getElementById('result-name').innerText = state.selectedTarget.name;
+    } else {
+        title.innerText = 'LOSE';
+        title.className = 'text-[120px] font-black italic text-red-600 italic mb-4';
+        document.getElementById('result-img').src = state.selectedMy.img;
+        document.getElementById('result-name').innerText = 'Items lost in test mode';
+    }
+}
+
+window.closeModal = () => {
+    location.reload(); // Для теста просто ресет
 };
