@@ -1,86 +1,67 @@
 /* style.css */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-thumb { background: rgba(234, 179, 8, 0.2); border-radius: 10px; }
+body { letter-spacing: -0.02em; }
 
-.custom-scroll { scrollbar-width: thin; scrollbar-color: #eab308 transparent; }
+.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+.custom-scroll::-webkit-scrollbar-thumb:hover { background: #eab308; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
 .speed-btn {
-    padding: 10px 28px;
-    border-radius: 14px;
-    font-size: 11px;
-    font-weight: 900;
-    text-transform: uppercase;
-    font-style: italic;
-    color: #555;
-    transition: 0.3s;
-}
-.speed-btn.active { background: #eab308; color: black; box-shadow: 0 5px 20px rgba(234, 179, 8, 0.2); }
-
-.chance-btn {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 14px 24px;
-    border-radius: 16px;
-    font-weight: 900;
-    font-size: 12px;
-    transition: 0.2s;
-}
-.chance-btn:hover { border-color: #eab308; background: rgba(234, 179, 8, 0.05); }
-
-.main-upgrade-btn {
-    background: #eab308;
-    color: black;
-    padding: 24px 80px;
-    border-radius: 28px;
-    font-weight: 900;
-    text-transform: uppercase;
-    font-style: italic;
-    font-size: 20px;
-    box-shadow: 0 20px 60px rgba(234, 179, 8, 0.3);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.main-upgrade-btn:disabled { opacity: 0.1; grayscale: 1; transform: scale(0.95); pointer-events: none; }
-.main-upgrade-btn:hover { transform: translateY(-5px); box-shadow: 0 30px 80px rgba(234, 179, 8, 0.4); }
-
-.awp-silhouette {
-    position: absolute;
-    width: 150%;
-    height: 100%;
-    top: 0;
-    background: url('https://pngimg.com/uploads/sniper_rifle/sniper_rifle_PNG35.png') no-repeat center;
-    background-size: contain;
-    pointer-events: none;
-}
-
-/* Анимация ленты дропа */
-@keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
-.animate-scroll {
-    display: flex;
-    animation: scroll 40s linear infinite;
-}
-
-.drop-item {
-    min-width: 90px;
-    height: 60px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-    border-radius: 12px;
-    border-bottom: 3px solid #eab308;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.skin-card {
-    background: rgba(255,255,255,0.02);
+    padding: 12px 24px;
+    background: #1a1a1d;
     border: 1px solid rgba(255,255,255,0.05);
-    transition: 0.3s;
+    border-radius: 12px;
+    font-[900] uppercase italic text-[10px] tracking-widest text-gray-500 transition-all;
 }
-.skin-card.selected {
-    border-color: #eab308;
-    background: rgba(234, 179, 8, 0.05);
-    box-shadow: 0 0 30px rgba(234, 179, 8, 0.1);
+.speed-btn.active {
+    background: #eab308;
+    color: #000;
+    border-color: transparent;
+    box-shadow: 0 5px 20px rgba(234,179,8,0.25);
 }
+
+.upgrade-execute-btn {
+    background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+    color: #000;
+    width: 280px;
+    padding: 24px;
+    border-radius: 25px;
+    font-[900] uppercase italic text-xl tracking-tighter shadow-[0_15px_40px_rgba(217,119,6,0.3)];
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.upgrade-execute-btn:hover:not(:disabled) { transform: scale(1.05); filter: brightness(1.1); }
+.upgrade-execute-btn:disabled { opacity: 0.1; filter: grayscale(1); transform: scale(0.95); cursor: not-allowed; }
+
+/* Карточка скина в сетке */
+.item-card {
+    background: #121214;
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 20px;
+    padding: 16px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+    overflow: hidden;
+}
+.item-card:hover { border-color: rgba(234,179,8,0.3); background: #161619; transform: translateY(-3px); }
+.item-card.selected { border-color: #eab308; background: rgba(234,179,8,0.05); }
+
+.item-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; width: 100%; height: 3px;
+    background: #eab308;
+    opacity: 0.1;
+}
+
+/* Эффекты */
+.shadow-glow { filter: drop-shadow(0 0 10px rgba(234,179,8,0.5)); }
+
+@keyframes win-pulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(234,179,8,0)); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 50px rgba(234,179,8,0.6)); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(234,179,8,0)); }
+}
+.win-animate { animation: win-pulse 2s infinite; }
