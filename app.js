@@ -1,73 +1,80 @@
+// app.js
 let state = {
-    balance: 0,
-    inventory: [],
-    allSkins: [],
     selectedMy: null,
     selectedTarget: null,
-    speed: 'slow',
-    level: 1,
-    xp: 0
+    speed: 'slow'
 };
 
-// Инициализация
 window.addEventListener('DOMContentLoaded', async () => {
-    if (typeof TEST_CONFIG !== 'undefined' && TEST_CONFIG.enabled) {
-        state.balance = TEST_CONFIG.balance;
-        state.inventory = TEST_CONFIG.inventory;
-        state.level = TEST_CONFIG.level;
-        state.xp = TEST_CONFIG.xp;
+    initLiveDrop();
+    if (TEST_CONFIG.enabled) {
+        renderInventory(TEST_CONFIG.inventory);
+        updateHeader(TEST_CONFIG);
+        updateProfile(TEST_CONFIG);
     }
-    
-    await loadDatabase();
-    updateUI();
+    await loadGlobalSkins();
 });
 
-async function loadDatabase() {
-    // Симуляция загрузки базы
+// Живая лента
+function initLiveDrop() {
+    const track = document.getElementById('live-drop-track');
+    // Создаем 20 фейковых дропов для красоты
+    for(let i=0; i<40; i++) {
+        const div = document.createElement('div');
+        div.className = 'live-drop-item';
+        div.innerHTML = `<img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56" class="w-8">`;
+        track.appendChild(div);
+    }
+}
+
+function updateHeader(data) {
+    document.getElementById('nav-balance').innerText = data.balance.toLocaleString();
+    document.getElementById('nav-level').innerText = data.level;
+}
+
+function updateProfile(data) {
+    document.getElementById('prof-level').innerText = data.level;
+    document.getElementById('prof-xp').innerText = data.xp;
+    document.getElementById('xp-bar').style.width = (data.xp / 1000 * 100) + '%';
+    document.getElementById('best-drop-img').src = data.bestDrop.img;
+    document.getElementById('best-drop-name').innerText = data.bestDrop.name;
+    document.getElementById('best-drop-price').innerText = data.bestDrop.price.toLocaleString() + " SQ";
+}
+
+// Загрузка скинов из API
+async function loadGlobalSkins() {
     const res = await fetch('https://bymykel.github.io/CSGO-API/api/ru/skins.json');
     const data = await res.json();
-    state.allSkins = data.slice(0, 100).map(s => ({
-        name: s.name,
-        price: Math.floor(Math.random() * 50000) + 100,
-        img: s.image
-    })).sort((a,b) => b.price - a.price);
-    UI.renderSkins('target-list', state.allSkins, 'target');
-}
-
-window.setSpeed = (s) => {
-    state.speed = s;
-    document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('active', b.id === 'speed-'+s));
-};
-
-window.setChancePreset = (percent) => {
-    if (!state.selectedMy) return alert("Выбери свой скин!");
-    const targetPrice = state.selectedMy.price / (percent / 100);
-    const closest = state.allSkins.reduce((prev, curr) => Math.abs(curr.price - targetPrice) < Math.abs(prev.price - targetPrice) ? curr : prev);
-    window.handleSelect(closest.name, 'target');
-};
-
-window.handleSelect = (name, type) => {
-    const skin = type === 'my' ? state.inventory.find(s => s.name === name) : state.allSkins.find(s => s.name === name);
-    if (type === 'my') state.selectedMy = skin;
-    else state.selectedTarget = skin;
-
-    if (state.selectedMy && state.selectedTarget) {
-        let chance = (state.selectedMy.price / state.selectedTarget.price) * 100;
-        chance = Math.min(chance, 80);
-        UI.updateCircle(chance);
-        const btn = document.getElementById('upgrade-btn');
-        btn.disabled = false;
-        btn.innerText = `АПГРЕЙД ЗА ${state.selectedMy.price} SQ`;
-    }
-    updateUI();
-};
-
-function updateUI() {
-    document.getElementById('nav-balance').innerText = state.balance.toLocaleString();
-    document.getElementById('user-level').innerText = state.level;
-    document.getElementById('user-xp').innerText = state.xp;
-    document.getElementById('xp-bar').style.width = (state.xp / 1000 * 100) + '%';
+    const targetList = document.getElementById('target-list');
     
-    UI.renderSkins('inventory-list', state.inventory, 'my', state.selectedMy);
-    UI.renderSkins('target-list', state.allSkins, 'target', state.selectedTarget);
+    data.slice(0, 50).forEach(skin => {
+        const div = document.createElement('div');
+        div.className = 'p-3 bg-white/5 rounded-xl border border-white/5 flex items-center gap-3 cursor-pointer hover:border-yellow-500/50 transition-all';
+        div.innerHTML = `
+            <img src="${skin.image}" class="w-10">
+            <div>
+                <div class="text-[9px] font-black uppercase text-gray-400">${skin.name}</div>
+                <div class="text-yellow-500 font-black text-xs italic">${Math.floor(Math.random()*5000)} SQ</div>
+            </div>
+        `;
+        targetList.appendChild(div);
+    });
 }
+
+function renderInventory(items) {
+    const invList = document.getElementById('inventory-list');
+    invList.innerHTML = items.map(item => `
+        <div class="p-3 bg-white/5 rounded-xl border border-white/5 flex items-center gap-3 cursor-pointer">
+            <img src="${item.img}" class="w-10">
+            <div>
+                <div class="text-[9px] font-black uppercase text-gray-400">${item.name}</div>
+                <div class="text-yellow-500 font-black text-xs italic">${item.price.toLocaleString()} SQ</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.showPage = (p) => {
+    document.getElementById('page-main').classList.toggle('hidden', p !== 'main');
+    document.getElementById('page-profile').classList.toggle('hidden', p !== 'profile');
+};
