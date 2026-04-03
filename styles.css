@@ -1,14 +1,73 @@
-body { overflow-x: hidden; }
-.custom-scroll::-webkit-scrollbar { width: 4px; }
-.custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+/* style.css */
+.speed-btn {
+    padding: 8px 24px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-style: italic;
+    transition: all 0.3s;
+}
+.speed-btn.active { background: #eab308; color: black; }
 
-/* Анимация карточки при выборе */
-.skin-card.selected {
-    border-color: #eab308 !important;
-    background: rgba(234, 179, 8, 0.1) !important;
-    box-shadow: 0 0 20px rgba(234, 179, 8, 0.1);
+.chance-btn {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 900;
+    transition: all 0.2s;
+}
+.chance-btn:hover { border-color: #eab308; background: rgba(234,179,8,0.05); }
+
+.upgrade-main-btn {
+    background: #eab308;
+    color: black;
+    padding: 20px 60px;
+    border-radius: 24px;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-style: italic;
+    font-size: 18px;
+    box-shadow: 0 15px 40px rgba(234,179,8,0.2);
+    transition: all 0.3s;
+}
+.upgrade-main-btn:disabled { opacity: 0.2; transform: scale(0.95); grayscale: 1; }
+
+/* Силуэты AWP */
+.awp-bg-left, .awp-bg-right {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    background-size: 80%;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.03;
+    pointer-events: none;
+}
+.awp-bg-left { background-image: url('https://pngimg.com/uploads/sniper_rifle/sniper_rifle_PNG35.png'); left: -20%; }
+.awp-bg-right { background-image: url('https://pngimg.com/uploads/sniper_rifle/sniper_rifle_PNG35.png'); right: -20%; transform: scaleX(-1); }
+
+/* Лента дропа */
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+.animate-scroll {
+    display: flex;
+    animation: scroll 30s linear infinite;
 }
 
-.skin-card:hover { transform: translateX(5px); }
-.skin-card { transition: all 0.2s ease-out; }
+.live-drop-item {
+    min-width: 60px;
+    height: 45px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border-bottom: 2px solid #eab308;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+}
