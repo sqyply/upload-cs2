@@ -2,79 +2,118 @@
 let state = {
     selectedMy: null,
     selectedTarget: null,
-    speed: 'slow'
+    speed: 'slow',
+    allSkins: []
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
     initLiveDrop();
     if (TEST_CONFIG.enabled) {
-        renderInventory(TEST_CONFIG.inventory);
-        updateHeader(TEST_CONFIG);
-        updateProfile(TEST_CONFIG);
+        applyTestData();
     }
     await loadGlobalSkins();
 });
 
-// Живая лента
+// Наполнение ленты дропа (фейковые данные для вида)
 function initLiveDrop() {
-    const track = document.getElementById('live-drop-track');
-    // Создаем 20 фейковых дропов для красоты
-    for(let i=0; i<40; i++) {
-        const div = document.createElement('div');
-        div.className = 'live-drop-item';
-        div.innerHTML = `<img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56" class="w-8">`;
-        track.appendChild(div);
-    }
+    const track = document.getElementById('live-drop-container');
+    const fakeDrops = Array(40).fill(TEST_CONFIG.inventory[0]);
+    track.innerHTML = fakeDrops.map(item => `
+        <div class="drop-item">
+            <img src="${item.img}" class="w-12 h-12 object-contain drop-shadow-lg">
+        </div>
+    `).join('') + track.innerHTML;
 }
 
-function updateHeader(data) {
-    document.getElementById('nav-balance').innerText = data.balance.toLocaleString();
-    document.getElementById('nav-level').innerText = data.level;
+function applyTestData() {
+    document.getElementById('nav-balance').innerText = TEST_CONFIG.user.balance.toLocaleString() + " SQ";
+    document.getElementById('nav-username').innerText = TEST_CONFIG.user.username;
+    document.getElementById('nav-level').innerText = TEST_CONFIG.user.level;
+    
+    // Профиль
+    document.getElementById('prof-level').innerText = TEST_CONFIG.user.level;
+    document.getElementById('prof-xp').innerText = TEST_CONFIG.user.xp;
+    document.getElementById('xp-bar').style.width = (TEST_CONFIG.user.xp / 1000 * 100) + "%";
+    document.getElementById('best-drop-img').src = TEST_CONFIG.bestDrop.img;
+    document.getElementById('best-drop-name').innerText = TEST_CONFIG.bestDrop.name;
+    document.getElementById('best-drop-price').innerText = TEST_CONFIG.bestDrop.price.toLocaleString() + " SQ";
+
+    renderInventory(TEST_CONFIG.inventory);
 }
 
-function updateProfile(data) {
-    document.getElementById('prof-level').innerText = data.level;
-    document.getElementById('prof-xp').innerText = data.xp;
-    document.getElementById('xp-bar').style.width = (data.xp / 1000 * 100) + '%';
-    document.getElementById('best-drop-img').src = data.bestDrop.img;
-    document.getElementById('best-drop-name').innerText = data.bestDrop.name;
-    document.getElementById('best-drop-price').innerText = data.bestDrop.price.toLocaleString() + " SQ";
-}
-
-// Загрузка скинов из API
 async function loadGlobalSkins() {
     const res = await fetch('https://bymykel.github.io/CSGO-API/api/ru/skins.json');
     const data = await res.json();
-    const targetList = document.getElementById('target-list');
+    state.allSkins = data.slice(0, 100).map(s => ({
+        name: s.name,
+        img: s.image,
+        price: Math.floor(Math.random() * 10000) + 100
+    })).sort((a,b) => b.price - a.price);
     
-    data.slice(0, 50).forEach(skin => {
-        const div = document.createElement('div');
-        div.className = 'p-3 bg-white/5 rounded-xl border border-white/5 flex items-center gap-3 cursor-pointer hover:border-yellow-500/50 transition-all';
-        div.innerHTML = `
-            <img src="${skin.image}" class="w-10">
-            <div>
-                <div class="text-[9px] font-black uppercase text-gray-400">${skin.name}</div>
-                <div class="text-yellow-500 font-black text-xs italic">${Math.floor(Math.random()*5000)} SQ</div>
-            </div>
-        `;
-        targetList.appendChild(div);
-    });
+    renderTargetList(state.allSkins);
 }
 
 function renderInventory(items) {
-    const invList = document.getElementById('inventory-list');
-    invList.innerHTML = items.map(item => `
-        <div class="p-3 bg-white/5 rounded-xl border border-white/5 flex items-center gap-3 cursor-pointer">
-            <img src="${item.img}" class="w-10">
+    const list = document.getElementById('inventory-list');
+    list.innerHTML = items.map(item => `
+        <div onclick="selectMy('${item.name}')" id="inv-${item.name}" class="skin-card p-4 rounded-3xl flex items-center gap-4 cursor-pointer">
+            <img src="${item.img}" class="w-14 h-14 object-contain">
             <div>
-                <div class="text-[9px] font-black uppercase text-gray-400">${item.name}</div>
-                <div class="text-yellow-500 font-black text-xs italic">${item.price.toLocaleString()} SQ</div>
+                <div class="text-[10px] font-black uppercase text-gray-400 italic">${item.name}</div>
+                <div class="text-yellow-500 font-black italic text-sm">${item.price.toLocaleString()} SQ</div>
             </div>
         </div>
     `).join('');
 }
 
+function renderTargetList(items) {
+    const list = document.getElementById('target-list');
+    list.innerHTML = items.map(item => `
+        <div onclick="selectTarget('${item.name}')" id="target-${item.name}" class="skin-card p-4 rounded-3xl flex items-center gap-4 cursor-pointer">
+            <img src="${item.img}" class="w-14 h-14 object-contain">
+            <div>
+                <div class="text-[10px] font-black uppercase text-gray-400 italic">${item.name}</div>
+                <div class="text-yellow-500 font-black italic text-sm">${item.price.toLocaleString()} SQ</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.selectMy = (name) => {
+    state.selectedMy = TEST_CONFIG.inventory.find(i => i.name === name);
+    document.querySelectorAll('#inventory-list .skin-card').forEach(el => el.classList.remove('selected'));
+    document.getElementById(`inv-${name}`).classList.add('selected');
+    updateUpgradeLogic();
+};
+
+window.selectTarget = (name) => {
+    state.selectedTarget = state.allSkins.find(i => i.name === name);
+    document.querySelectorAll('#target-list .skin-card').forEach(el => el.classList.remove('selected'));
+    document.getElementById(`target-${name}`).classList.add('selected');
+    updateUpgradeLogic();
+};
+
+function updateUpgradeLogic() {
+    if (state.selectedMy && state.selectedTarget) {
+        let chance = (state.selectedMy.price / state.selectedTarget.price) * 100;
+        chance = Math.min(chance, 80).toFixed(1);
+        
+        document.getElementById('chance-display').innerText = chance + "%";
+        const ring = document.getElementById('progress-ring');
+        ring.style.strokeDashoffset = 1319 - (1319 * chance / 100);
+        
+        const btn = document.getElementById('upgrade-btn');
+        btn.disabled = false;
+        btn.innerText = `UPGRADE FOR ${state.selectedMy.price.toLocaleString()} SQ`;
+    }
+}
+
 window.showPage = (p) => {
     document.getElementById('page-main').classList.toggle('hidden', p !== 'main');
     document.getElementById('page-profile').classList.toggle('hidden', p !== 'profile');
+};
+
+window.setSpeed = (s) => {
+    state.speed = s;
+    document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('active', b.id === 'speed-'+s));
 };
