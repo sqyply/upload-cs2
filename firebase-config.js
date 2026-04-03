@@ -1,4 +1,3 @@
-// firebase-config.js
 const firebaseConfig = {
     apiKey: "AIzaSyD8-CEB-HZMouwx_HLGmPfnOOD5HmF3nUM",
     authDomain: "upload-cs2.firebaseapp.com",
@@ -8,12 +7,6 @@ const firebaseConfig = {
     appId: "1:611922955960:web:c9b87c819075e33446ae4d"
 };
 
-// Профессиональная проверка: инициализируем только если еще не создано
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-} else {
-    firebase.app();
-}
-
+firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
