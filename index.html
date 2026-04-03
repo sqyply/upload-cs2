@@ -1,169 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPGRADER | CS2 Skins Engine</title>
+    <title>UPLOAD | CS2</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-[#0b0b0d] text-[#e1e1e1] font-['Exo_2'] select-none overflow-hidden">
+<body class="bg-[#060607] text-[#ececec] font-['Inter'] overflow-hidden">
 
-    <header class="h-[70px] bg-[#121214] border-b border-white/[0.03] flex items-center justify-between px-6 z-50 relative">
-        <div class="flex items-center gap-8">
-            <div class="flex items-center gap-2 cursor-pointer group">
-                <div class="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center rotate-45 group-hover:rotate-90 transition-transform duration-500">
-                    <div class="-rotate-45 group-hover:-rotate-90 transition-transform duration-500">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="black"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
-                    </div>
-                </div>
-                <span class="text-2xl font-[900] tracking-tighter uppercase italic">UPGRADER</span>
+    <div class="h-14 bg-[#0a0a0b] border-b border-white/[0.03] flex items-center overflow-hidden">
+        <div id="live-history" class="flex gap-2 px-4 animate-scroll whitespace-nowrap">
             </div>
+    </div>
+
+    <header class="h-16 flex items-center justify-between px-8 border-b border-white/[0.02] bg-[#080809]">
+        <div class="flex items-center gap-6">
+            <h1 onclick="showPage('main')" class="text-xl font-[900] tracking-tighter uppercase italic cursor-pointer text-yellow-500 hover:opacity-80 transition-all">UPLOAD</h1>
             
-            <nav class="flex gap-6 text-sm font-bold text-gray-500 uppercase tracking-widest">
-                <a href="#" class="hover:text-white transition-colors">Events</a>
-                <a href="#" class="text-white border-b-2 border-yellow-500 pb-1">Upgrade</a>
-                <a href="#" class="hover:text-white transition-colors">Case Battles</a>
-            </nav>
+            <div class="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-white/5">
+                <div class="w-4 h-4 bg-yellow-500 rounded-sm flex items-center justify-center text-[8px] text-black font-black">SQ</div>
+                <span id="user-balance" class="text-sm font-black italic">0.00</span>
+            </div>
         </div>
 
-        <div class="flex items-center gap-4">
-            <div class="bg-[#1a1a1d] px-4 py-2 rounded-xl border border-white/[0.05] flex items-center gap-3">
-                <span id="user-balance" class="font-black text-yellow-500 italic text-lg">0.20</span>
-                <div class="w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center text-[10px] text-black font-bold">SQ</div>
-                <button class="ml-2 bg-yellow-500 text-black px-3 py-1 rounded-lg text-[10px] font-black uppercase hover:bg-yellow-400">Top Up</button>
+        <div onclick="showPage('profile')" class="flex items-center gap-3 cursor-pointer group">
+            <div class="text-right">
+                <div id="display-name" class="text-[11px] font-black uppercase italic group-hover:text-yellow-500 transition-colors">Player</div>
+                <div class="text-[9px] text-gray-500 font-bold">LVL <span id="user-level">1</span></div>
             </div>
-            
-            <div onclick="toggleProfile()" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                <div class="text-right">
-                    <div class="text-xs font-black uppercase italic" id="display-name">Loading...</div>
-                    <div class="text-[9px] text-gray-500 font-bold uppercase tracking-tighter">ID 372958</div>
-                </div>
-                <div id="user-avatar" class="w-10 h-10 bg-[#252528] rounded-xl border border-white/10 overflow-hidden flex items-center justify-center text-xl font-bold italic text-yellow-500">?</div>
-            </div>
+            <div id="user-avatar" class="w-9 h-9 bg-yellow-500 rounded-lg flex items-center justify-center text-black font-black italic shadow-lg shadow-yellow-500/10 text-sm">?</div>
         </div>
     </header>
 
-    <div class="flex h-[calc(100vh-70px)]">
+    <div id="page-main" class="flex h-[calc(100vh-120px)] p-6 gap-6">
         
-        <aside class="w-[100px] bg-[#0e0e10] border-r border-white/[0.03] flex flex-col items-center py-4 gap-3 overflow-y-auto custom-scroll no-scrollbar">
-            <div id="live-history" class="space-y-3"></div>
-        </aside>
-
-        <main class="flex-1 flex flex-col overflow-y-auto no-scrollbar relative bg-[radial-gradient(circle_at_50%_-20%,_rgba(234,179,8,0.05)_0%,_transparent_50%)]">
-            
-            <section class="min-h-[500px] w-full flex items-center justify-around px-20 py-10 relative">
-                
-                <div class="w-[320px] h-[320px] bg-[#121214]/80 rounded-[40px] border border-white/[0.05] flex flex-col items-center justify-center p-6 relative overflow-hidden group">
-                    <div id="selected-my-container" class="z-10 flex flex-col items-center">
-                        <div class="w-40 h-40 opacity-20 group-hover:opacity-40 transition-opacity">
-                            <svg viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                        </div>
-                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-4">Select skins to use</p>
-                    </div>
-                    <div id="selected-my-item" class="hidden z-10 flex flex-col items-center">
-                        <img id="my-item-img" src="" class="w-48 h-32 object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]">
-                        <div class="text-center mt-4">
-                            <div id="my-item-name" class="text-[11px] font-bold uppercase text-gray-400 truncate w-40"></div>
-                            <div id="my-item-price" class="text-yellow-500 font-black italic text-lg mt-1"></div>
-                        </div>
-                    </div>
+        <section class="w-[300px] flex flex-col bg-[#0a0a0b] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
+                <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest italic">Inventory</span>
+                <button onclick="sellAllItems()" class="text-[9px] font-black text-red-500/70 hover:text-red-500 uppercase transition-all">Sell All</button>
+            </div>
+            <div id="grid-my" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2 custom-scroll">
                 </div>
+        </section>
 
-                <div class="flex flex-col items-center gap-8">
-                    <div class="relative w-[360px] h-[360px] flex items-center justify-center">
-                        <svg class="absolute inset-0 w-full h-full -rotate-90">
-                            <circle cx="180" cy="180" r="165" fill="none" stroke="#1a1a1d" stroke-width="25" />
-                            <circle id="ring-progress" cx="180" cy="180" r="165" fill="none" stroke="url(#grad)" stroke-width="25" 
-                                    stroke-dasharray="1036" stroke-dashoffset="1036" stroke-linecap="round" class="transition-all duration-700 ease-out" />
-                            <defs>
-                                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" style="stop-color:#eab308;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        
-                        <div class="text-center z-10">
-                            <div id="chance-text" class="text-[72px] font-black italic italic leading-none text-white tracking-tighter">0.00%</div>
-                            <div class="text-[10px] text-gray-500 font-black uppercase tracking-[0.4em] mt-2 opacity-50">Medium Chance</div>
-                        </div>
+        <section class="flex-1 flex flex-col items-center justify-center relative">
+            <div class="flex gap-1.5 mb-8 bg-black/50 p-1 rounded-xl border border-white/5">
+                <button onclick="setSpeed('slow')" id="speed-slow" class="compact-speed-btn active">Slow</button>
+                <button onclick="setSpeed('fast')" id="speed-fast" class="compact-speed-btn">Fast</button>
+                <button onclick="setSpeed('instant')" id="speed-instant" class="compact-speed-btn !text-yellow-500">Instant</button>
+            </div>
 
-                        <div id="ticker" class="absolute top-[15px] w-2 h-10 bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.8)] rounded-full transition-all duration-[3000ms] hidden" style="transform-origin: 50% 165px;"></div>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button onclick="setSpeed('slow')" class="speed-btn active">Slow</button>
-                        <button onclick="setSpeed('fast')" class="speed-btn">Turbo</button>
-                        <button onclick="setSpeed('instant')" class="speed-btn">Instant</button>
-                    </div>
-
-                    <button id="btn-execute" disabled class="upgrade-execute-btn">Upgrade</button>
+            <div class="relative w-[320px] h-[320px] flex items-center justify-center">
+                <svg class="absolute inset-0 w-full h-full -rotate-90">
+                    <circle cx="160" cy="160" r="145" fill="none" stroke="#111113" stroke-width="12" />
+                    <circle id="ring-progress" cx="160" cy="160" r="145" fill="none" stroke="#eab308" stroke-width="12" 
+                            stroke-dasharray="911" stroke-dashoffset="911" stroke-linecap="round" class="transition-all duration-700 shadow-glow" />
+                </svg>
+                <div class="text-center">
+                    <div id="chance-text" class="text-5xl font-black italic leading-none">0%</div>
+                    <div class="text-[9px] text-gray-600 font-bold uppercase tracking-[0.3em] mt-3 italic">Upgrade Chance</div>
                 </div>
+            </div>
 
-                <div class="w-[320px] h-[320px] bg-[#121214]/80 rounded-[40px] border border-white/[0.05] flex flex-col items-center justify-center p-6 relative overflow-hidden group">
-                    <div id="selected-target-container" class="z-10 flex flex-col items-center">
-                        <div class="w-40 h-40 opacity-20 group-hover:opacity-40 transition-opacity rotate-180">
-                            <svg viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
-                        </div>
-                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-4">Select skin for upgrade</p>
-                    </div>
-                    <div id="selected-target-item" class="hidden z-10 flex flex-col items-center">
-                        <img id="target-item-img" src="" class="w-48 h-32 object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]">
-                        <div class="text-center mt-4">
-                            <div id="target-item-name" class="text-[11px] font-bold uppercase text-gray-400 truncate w-40"></div>
-                            <div id="target-item-price" class="text-yellow-500 font-black italic text-lg mt-1"></div>
-                        </div>
-                    </div>
+            <div class="flex gap-2 mt-8">
+                <button onclick="setChancePreset(1)" class="p-btn italic">1%</button>
+                <button onclick="setChancePreset(10)" class="p-btn italic">10%</button>
+                <button onclick="setChancePreset(25)" class="p-btn italic">25%</button>
+                <button onclick="setChancePreset(50)" class="p-btn italic">50%</button>
+                <button onclick="setChancePreset(75)" class="p-btn italic">75%</button>
+            </div>
+
+            <button id="btn-execute" disabled class="mt-10 upgrade-main-btn">Select Items</button>
+        </section>
+
+        <section class="w-[300px] flex flex-col bg-[#0a0a0b] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-white/5 bg-white/[0.01]">
+                <input type="text" id="shop-search" oninput="searchShop()" placeholder="Search CS2 skins..." class="w-full bg-[#111113] border border-white/5 rounded-lg px-3 py-2 text-[10px] focus:outline-none focus:border-yellow-500/40">
+            </div>
+            <div id="grid-shop" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2 custom-scroll">
                 </div>
-            </section>
-
-            <section class="p-8 bg-[#0e0e10]/50 rounded-t-[50px] border-t border-white/[0.03] flex-1">
-                <div class="max-w-7xl mx-auto grid grid-cols-2 gap-10">
-                    
-                    <div>
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-xs font-black uppercase text-gray-500 tracking-widest italic flex items-center gap-2">
-                                <span class="w-2 h-2 bg-yellow-500 rounded-full"></span> My Skins
-                            </h3>
-                            <input type="text" placeholder="Search..." class="bg-[#1a1a1d] border border-white/5 rounded-lg px-4 py-2 text-[10px] focus:outline-none focus:border-yellow-500/50 w-32">
-                        </div>
-                        <div id="grid-my" class="grid grid-cols-4 gap-3 h-[400px] overflow-y-auto pr-2 custom-scroll">
-                            </div>
-                    </div>
-
-                    <div>
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-xs font-black uppercase text-gray-500 tracking-widest italic flex items-center gap-2">
-                                <span class="w-2 h-2 bg-yellow-500 rounded-full"></span> Select Target
-                            </h3>
-                            <div class="flex gap-2">
-                                <input type="number" placeholder="From" class="bg-[#1a1a1d] border border-white/5 rounded-lg px-3 py-2 text-[10px] w-20">
-                                <input type="number" placeholder="To" class="bg-[#1a1a1d] border border-white/5 rounded-lg px-3 py-2 text-[10px] w-20">
-                            </div>
-                        </div>
-                        <div id="grid-shop" class="grid grid-cols-4 gap-3 h-[400px] overflow-y-auto pr-2 custom-scroll">
-                            </div>
-                    </div>
-
-                </div>
-            </section>
-        </main>
+        </section>
     </div>
 
-    <div id="result-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm hidden flex items-center justify-center p-10">
-        <div class="text-center">
-            <h2 id="result-title" class="text-[120px] font-black italic italic leading-none mb-4">WIN</h2>
-            <div id="result-skin-box" class="bg-[#121214] p-10 rounded-[60px] border border-white/10 mb-8 inline-block shadow-2xl">
-                <img id="result-img" src="" class="w-72 h-48 object-contain">
-                <h4 id="result-name" class="text-xl font-black italic uppercase mt-4"></h4>
+    <div id="page-profile" class="hidden h-[calc(100vh-80px)] p-10 max-w-6xl mx-auto animate-fade-in">
+        <div class="grid grid-cols-12 gap-6">
+            <div class="col-span-4 bg-[#0a0a0b] border border-white/5 rounded-3xl p-8 text-center relative overflow-hidden">
+                <div class="w-24 h-24 bg-yellow-500 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl font-black italic text-black shadow-2xl">?</div>
+                <h2 id="prof-name" class="text-2xl font-black italic uppercase">Player</h2>
+                <div class="w-full bg-white/5 h-2 rounded-full mt-8 overflow-hidden">
+                    <div id="xp-bar" class="bg-yellow-500 h-full transition-all" style="width: 30%"></div>
+                </div>
+                <p class="text-[9px] font-bold text-gray-500 mt-2 uppercase italic tracking-widest">Level <span class="text-yellow-500">1</span></p>
             </div>
-            <br>
-            <button onclick="closeModal()" class="bg-yellow-500 text-black px-12 py-5 rounded-3xl font-black uppercase italic tracking-widest hover:scale-110 transition-transform">Collect Item</button>
+
+            <div class="col-span-8 bg-[#0a0a0b] border border-white/5 rounded-3xl p-8 flex flex-col items-center justify-center relative">
+                <span class="absolute top-6 left-8 text-[9px] font-black text-gray-600 uppercase tracking-widest italic">Personal Best Drop</span>
+                <img id="best-drop-img" src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56" class="w-48 h-32 object-contain drop-shadow-[0_20px_40px_rgba(234,179,8,0.2)]">
+                <h4 id="best-drop-name" class="text-lg font-black italic uppercase mt-4">AWP | Dragon Lore</h4>
+            </div>
         </div>
     </div>
 
