@@ -1,155 +1,129 @@
 // app.js
-const firebaseConfig = {
-    apiKey: "AIzaSyD8-CEB-HZMouwx_HLGmPfnOOD5HmF3nUM",
-    authDomain: "upload-cs2.firebaseapp.com",
-    projectId: "upload-cs2",
-    storageBucket: "upload-cs2.firebasestorage.app",
-    messagingSenderId: "611922955960",
-    appId: "1:611922955960:web:c9b87c819075e33446ae4d"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-let user = null;
 let state = {
+    balance: 1500.00,
+    inventory: [
+        { id: 1, name: 'AK-47 | Safari Mesh', price: 2.50, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' },
+        { id: 2, name: 'AWP | Asiimov', price: 150.00, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' }
+    ],
+    shop: [],
     selectedMy: null,
     selectedTarget: null,
+    chance: 0,
     speed: 3000,
-    skins: []
+    isRolling: false
 };
 
-// 1. АВТОРИЗАЦИЯ
-async function login() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    await auth.signInWithPopup(provider);
+// Загрузка скинов из реального API CS2
+async function init() {
+    try {
+        const res = await fetch('https://bymykel.github.io/CSGO-API/api/ru/skins.json');
+        const data = await res.json();
+        // Фильтруем и берем первые 100 для скорости
+        state.shop = data.slice(0, 100).map(s => ({
+            name: s.name,
+            price: (Math.random() * 800 + 10).toFixed(2), // Генерим цену (в API её нет)
+            img: s.image
+        }));
+        renderAll();
+    } catch (e) { console.error("API Error", e); }
 }
 
-auth.onAuthStateChanged(async (u) => {
-    if (u) {
-        user = u;
-        document.getElementById('auth-section').classList.add('hidden');
-        document.getElementById('user-section').classList.remove('hidden');
-        document.getElementById('username').innerText = u.displayName;
-        document.getElementById('avatar').src = u.photoURL;
+function renderAll() {
+    // Инвентарь
+    const invGrid = document.getElementById('my-grid');
+    invGrid.innerHTML = state.inventory.map(item => `
+        <div class="skin-card" onclick="selectMy(${item.id})" id="my-${item.id}">
+            <img src="${item.img}" class="w-full h-12 object-contain mb-2">
+            <div class="text-[8px] font-bold text-gray-500 uppercase truncate">${item.name}</div>
+            <div class="text-[10px] font-black text-yellow-500 mt-1">${item.price} SQ</div>
+        </div>
+    `).join('');
+
+    // Магазин
+    const shopGrid = document.getElementById('shop-grid');
+    shopGrid.innerHTML = state.shop.map(item => `
+        <div class="skin-card" onclick="selectTarget('${item.name}')" id="shop-${item.name}">
+            <img src="${item.img}" class="w-full h-12 object-contain mb-2">
+            <div class="text-[8px] font-bold text-gray-500 uppercase truncate">${item.name}</div>
+            <div class="text-[10px] font-black text-yellow-500 mt-1">${item.price} SQ</div>
+        </div>
+    `).join('');
+}
+
+window.selectMy = (id) => {
+    state.selectedMy = state.inventory.find(i => i.id === id);
+    document.querySelectorAll('#my-grid .skin-card').forEach(el => el.classList.remove('selected'));
+    document.getElementById(`my-${id}`).classList.add('selected');
+    calcChance();
+};
+
+window.selectTarget = (name) => {
+    state.selectedTarget = state.shop.find(i => i.name === name);
+    document.querySelectorAll('#shop-grid .skin-card').forEach(el => el.classList.remove('selected'));
+    document.getElementById(`shop-${name}`).classList.add('selected');
+    calcChance();
+};
+
+function calcChance() {
+    if (state.selectedMy && state.selectedTarget) {
+        state.chance = (state.selectedMy.price / state.selectedTarget.price) * 100;
+        state.chance = Math.min(state.chance, 95).toFixed(2);
         
-        // Подтягиваем данные из БД или создаем профиль
-        const userDoc = await db.collection('users').doc(u.uid).get();
-        if (!userDoc.exists()) {
-            await db.collection('users').doc(u.uid).set({
-                balance: 10.00, // Бонус при регистрации
-                inventory: [],
-                lvl: 1
-            });
-        }
-        listenToUserData();
+        document.getElementById('chance-display').innerText = state.chance + '%';
+        const ring = document.getElementById('ring-progress');
+        ring.style.strokeDashoffset = 1005 - (1005 * state.chance / 100);
+        
+        const btn = document.getElementById('upgrade-btn');
+        btn.disabled = false;
+        btn.innerText = `UPGRADE`;
     }
-});
-
-function listenToUserData() {
-    db.collection('users').doc(user.uid).onSnapshot(doc => {
-        const data = doc.data();
-        document.getElementById('balance').innerText = data.balance.toFixed(2);
-        document.getElementById('lvl').innerText = data.lvl;
-        renderInventory(data.inventory);
-    });
 }
 
-// 2. ЗАГРУЗКА СКИНОВ (РЕАЛЬНОЕ API)
-async function loadSkins() {
-    const res = await fetch('https://bymykel.github.io/CSGO-API/api/ru/skins.json');
-    const data = await res.json();
-    state.skins = data.slice(0, 150).map(s => ({
-        id: Math.random().toString(36).substr(2, 9),
-        name: s.name,
-        img: s.image,
-        price: (Math.random() * 500 + 0.5).toFixed(2)
-    }));
-    renderShop(state.skins);
-}
+window.setSpeed = (ms, btn) => {
+    state.speed = ms;
+    document.querySelectorAll('.spd-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+};
 
-// 3. ЛОГИКА АПГРЕЙДА (РЕАЛЬНЫЕ ДЕНЬГИ)
-async function executeUpgrade() {
-    if (!state.selectedMy || !state.selectedTarget) return;
-    
-    const chance = (state.selectedMy.price / state.selectedTarget.price) * 100;
-    const btn = document.getElementById('upgrade-btn');
-    btn.disabled = true;
+function startUpgrade() {
+    if (state.isRolling) return;
+    state.isRolling = true;
+    document.getElementById('upgrade-btn').disabled = true;
 
-    // Крутим кольцо (визуал)
-    const ring = document.getElementById('ring');
-    ring.style.transition = `stroke-dashoffset ${state.speed}ms cubic-bezier(0.4, 0, 0.2, 1)`;
-    
-    const randomPoint = Math.random() * 100;
-    const isWin = randomPoint <= chance;
+    const ticker = document.getElementById('ticker');
+    ticker.classList.remove('hidden');
 
-    setTimeout(async () => {
-        const modal = document.getElementById('modal');
-        const content = document.getElementById('modal-content');
-        modal.classList.remove('hidden');
+    const resultPoint = Math.random() * 100; // Где остановится стрелка
+    const isWin = resultPoint <= state.chance;
+    const finalRotation = (360 * 5) + (resultPoint * 3.6); // 5 кругов + точка
 
-        if (isWin) {
-            content.innerHTML = `
-                <h2 class="text-6xl font-black text-yellow-500 italic mb-4">SUCCESS</h2>
-                <div class="bg-white/5 p-8 rounded-[40px] border border-white/10 mb-6">
-                    <img src="${state.selectedTarget.img}" class="w-64 mx-auto">
-                    <p class="mt-4 font-black uppercase italic">${state.selectedTarget.name}</p>
-                </div>
-                <button onclick="location.reload()" class="bg-yellow-500 text-black px-10 py-4 rounded-2xl font-black italic uppercase">Collect</button>
-            `;
-            // Обновляем БД: удаляем старый, добавляем новый
-            await updateDbAfterGame(true);
-        } else {
-            content.innerHTML = `
-                <h2 class="text-6xl font-black text-red-600 italic mb-4">FAILED</h2>
-                <p class="text-gray-500 mb-8">You lost your item</p>
-                <button onclick="location.reload()" class="border border-white/20 text-white px-10 py-4 rounded-2xl font-black italic uppercase">Try Again</button>
-            `;
-            await updateDbAfterGame(false);
-        }
+    ticker.style.transition = `transform ${state.speed}ms cubic-bezier(0.1, 0, 0.1, 1)`;
+    ticker.style.transform = `rotate(${finalRotation}deg)`;
+
+    setTimeout(() => {
+        showResult(isWin);
     }, state.speed);
 }
 
-async function updateDbAfterGame(win) {
-    const userRef = db.collection('users').doc(user.uid);
-    const snap = await userRef.get();
-    let inv = snap.data().inventory;
-    
-    // Удаляем предмет, который ставили
-    inv = inv.filter(item => item.id !== state.selectedMy.id);
-    
-    if (win) {
-        inv.push(state.selectedTarget);
-    }
-    
-    await userRef.update({ inventory: inv });
-}
-
-// 4. ПЛАТЕЖКА (ЗАГЛУШКА ДЛЯ ИНТЕГРАЦИИ)
-function openDeposit() {
+function showResult(win) {
     const modal = document.getElementById('modal');
+    const resDiv = document.getElementById('modal-res');
     modal.classList.remove('hidden');
-    document.getElementById('modal-content').innerHTML = `
-        <div class="bg-[#0a0a0a] p-10 rounded-[40px] border border-white/5 max-w-md w-full">
-            <h3 class="text-2xl font-black italic uppercase mb-6">Deposit Balance</h3>
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <button onclick="addCash(10)" class="p-4 bg-white/5 rounded-2xl hover:bg-yellow-500/20">10 SQ</button>
-                <button onclick="addCash(50)" class="p-4 bg-white/5 rounded-2xl hover:bg-yellow-500/20">50 SQ</button>
-            </div>
-            <p class="text-[10px] text-gray-600 uppercase">This is where you integrate Stripe/Crypto API</p>
-            <button onclick="location.reload()" class="mt-8 text-gray-400 text-xs">Close</button>
-        </div>
-    `;
+
+    if (win) {
+        resDiv.innerHTML = `
+            <h2 class="text-7xl font-black text-yellow-500 italic mb-4">SUCCESS</h2>
+            <img src="${state.selectedTarget.img}" class="w-64 mx-auto drop-shadow-[0_0_30px_rgba(234,179,8,0.5)]">
+            <p class="mt-4 font-black uppercase">${state.selectedTarget.name}</p>
+            <button onclick="location.reload()" class="mt-10 bg-yellow-500 text-black px-12 py-4 rounded-2xl font-black uppercase">Collect Item</button>
+        `;
+    } else {
+        resDiv.innerHTML = `
+            <h2 class="text-7xl font-black text-red-600 italic mb-4">FAILED</h2>
+            <p class="text-gray-500 font-bold uppercase">You lost everything</p>
+            <button onclick="location.reload()" class="mt-10 border border-white/20 text-white px-12 py-4 rounded-2xl font-black uppercase">Try Again</button>
+        `;
+    }
 }
 
-async function addCash(amount) {
-    const userRef = db.collection('users').doc(user.uid);
-    await userRef.update({
-        balance: firebase.firestore.FieldValue.increment(amount)
-    });
-    location.reload();
-}
-
-// Вспомогательные функции рендера... (как в прошлый раз, но компактнее)
-loadSkins();
+init();
