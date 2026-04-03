@@ -1,132 +1,119 @@
 // app.js
-const CONFIG = {
-    testMode: true,
-    user: { name: 'JACK_BOSS', balance: 1000000.0, avatar: 'J' },
-    mySkins: [
-        { id: 1, name: 'AK-47 | Safari Mesh', price: 10, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' },
-        { id: 2, name: 'AWP | Dragon Lore', price: 1250000, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' },
-        { id: 3, name: 'Butterfly | Doppler', price: 180000, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' }
-    ]
-};
-
 let state = {
     selectedMy: null,
     selectedTarget: null,
-    chance: 0,
-    speed: 'slow',
-    isUpgrading: false
+    inventory: [],
+    shop: [],
+    balance: 500.25,
+    speed: 'slow'
 };
 
-// Инициализация
 window.onload = async () => {
+    // 1. Инициализация баланса и юзера
     updateUI();
-    renderGrids();
+    
+    // 2. Тестовый инвентарь (если пустой)
+    state.inventory = [
+        { id: 100, name: 'AK-47 | Safari Mesh', price: 1.20, img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' },
+        { id: 101, name: 'AWP | Asiimov', price: 150.00, img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' }
+    ];
+
+    // 3. Загрузка ВСЕХ скинов из API
+    await loadShop();
+    renderInventory();
     initHistory();
 };
 
-function updateUI() {
-    document.getElementById('user-balance').innerText = CONFIG.user.balance.toLocaleString('en-US', { minimumFractionDigits: 2 });
-    document.getElementById('display-name').innerText = CONFIG.user.name;
-    document.getElementById('user-avatar').innerText = CONFIG.user.avatar;
+async function loadShop() {
+    const res = await fetch('https://bymykel.github.io/CSGO-API/api/ru/skins.json');
+    const data = await res.json();
+    state.shop = data.slice(0, 200).map(s => ({
+        name: s.name,
+        price: Math.floor(Math.random() * 5000) + 1, // Фейк цена, т.к. в API нет цен
+        img: s.image
+    }));
+    renderShop(state.shop);
 }
 
-function renderGrids() {
-    const myGrid = document.getElementById('grid-my');
-    myGrid.innerHTML = CONFIG.mySkins.map(item => `
-        <div class="item-card" onclick="selectMy(${item.id})" id="my-${item.id}">
-            <img src="${item.img}" class="w-full h-16 object-contain mb-2">
-            <div class="text-[9px] font-bold text-gray-500 uppercase truncate">${item.name}</div>
-            <div class="text-xs font-black italic text-yellow-500 mt-1">${item.price.toLocaleString()} SQ</div>
-        </div>
-    `).join('');
-
-    // Фейковый магазин (можно подключить реальное API позже)
-    const shopGrid = document.getElementById('grid-shop');
-    const shopItems = [
-        { id: 101, name: 'M4A4 | Howl', price: 550000, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' },
-        { id: 102, name: 'AWP | Gungnir', price: 1350000, img: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56' }
-    ];
-    shopGrid.innerHTML = shopItems.map(item => `
-        <div class="item-card" onclick="selectTarget(${item.id})" id="shop-${item.id}">
-            <img src="${item.img}" class="w-full h-16 object-contain mb-2">
-            <div class="text-[9px] font-bold text-gray-500 uppercase truncate">${item.name}</div>
-            <div class="text-xs font-black italic text-yellow-500 mt-1">${item.price.toLocaleString()} SQ</div>
+function renderInventory() {
+    const grid = document.getElementById('grid-my');
+    grid.innerHTML = state.inventory.map(item => `
+        <div class="item-mini-card" onclick="selectMy(${item.id})" id="my-${item.id}">
+            <img src="${item.img}" class="w-full h-10 object-contain mb-2">
+            <div class="text-[8px] font-bold text-gray-500 truncate italic">${item.name}</div>
+            <div class="text-[10px] font-black text-yellow-500 mt-1">${item.price} SQ</div>
+            <button onclick="sellItem(${item.id}, event)" class="text-[8px] text-red-500/50 hover:text-red-500 uppercase mt-2 font-black">Sell</button>
         </div>
     `).join('');
 }
+
+function renderShop(items) {
+    const grid = document.getElementById('grid-shop');
+    grid.innerHTML = items.map(item => `
+        <div class="item-mini-card" onclick="selectTarget('${item.name}')" id="shop-${item.name}">
+            <img src="${item.img}" class="w-full h-10 object-contain mb-2">
+            <div class="text-[8px] font-bold text-gray-500 truncate italic">${item.name}</div>
+            <div class="text-[10px] font-black text-yellow-500 mt-1">${item.price} SQ</div>
+        </div>
+    `).join('');
+}
+
+// Продажа одного
+window.sellItem = (id, e) => {
+    e.stopPropagation();
+    const item = state.inventory.find(i => i.id === id);
+    state.balance += item.price;
+    state.inventory = state.inventory.filter(i => i.id !== id);
+    updateUI();
+    renderInventory();
+};
+
+// Продажа ВСЕХ
+window.sellAllItems = () => {
+    const total = state.inventory.reduce((acc, i) => acc + i.price, 0);
+    state.balance += total;
+    state.inventory = [];
+    updateUI();
+    renderInventory();
+};
 
 window.selectMy = (id) => {
-    state.selectedMy = CONFIG.mySkins.find(i => i.id === id);
-    document.querySelectorAll('#grid-my .item-card').forEach(el => el.classList.remove('selected'));
+    state.selectedMy = state.inventory.find(i => i.id === id);
+    document.querySelectorAll('#grid-my .item-mini-card').forEach(el => el.classList.remove('selected'));
     document.getElementById(`my-${id}`).classList.add('selected');
-    
-    document.getElementById('selected-my-container').classList.add('hidden');
-    document.getElementById('selected-my-item').classList.remove('hidden');
-    document.getElementById('my-item-img').src = state.selectedMy.img;
-    document.getElementById('my-item-name').innerText = state.selectedMy.name;
-    document.getElementById('my-item-price').innerText = state.selectedMy.price.toLocaleString() + ' SQ';
-    
-    calculateChance();
+    calculate();
 };
 
-window.selectTarget = (id) => {
-    // В реале тут будет поиск по массиву магазина
-    state.selectedTarget = { id: 101, name: 'M4A4 | Howl', price: 550000, img: '...' }; // Упрощено для примера
-    calculateChance();
+window.selectTarget = (name) => {
+    state.selectedTarget = state.shop.find(i => i.name === name);
+    document.querySelectorAll('#grid-shop .item-mini-card').forEach(el => el.classList.remove('selected'));
+    document.getElementById(`shop-${name}`).classList.add('selected');
+    calculate();
 };
 
-function calculateChance() {
-    if (state.selectedMy && state.selectedTarget) {
-        state.chance = (state.selectedMy.price / state.selectedTarget.price) * 100;
-        state.chance = Math.min(state.chance, 95).toFixed(2);
-        
-        document.getElementById('chance-text').innerText = state.chance + '%';
+function calculate() {
+    if(state.selectedMy && state.selectedTarget) {
+        let chance = (state.selectedMy.price / state.selectedTarget.price) * 100;
+        chance = Math.min(chance, 85).toFixed(2);
+        document.getElementById('chance-text').innerText = chance + '%';
         const ring = document.getElementById('ring-progress');
-        const offset = 1036 - (1036 * state.chance / 100);
-        ring.style.strokeDashoffset = offset;
-        
+        ring.style.strokeDashoffset = 911 - (911 * chance / 100);
         document.getElementById('btn-execute').disabled = false;
+        document.getElementById('btn-execute').innerText = `Upgrade (${state.selectedMy.price} → ${state.selectedTarget.price})`;
     }
 }
 
-document.getElementById('btn-execute').onclick = () => {
-    if (state.isUpgrading) return;
-    state.isUpgrading = true;
-    document.getElementById('btn-execute').disabled = true;
-    
-    const ticker = document.getElementById('ticker');
-    ticker.classList.remove('hidden');
-    
-    // Результат (0 - 100)
-    const resultPoint = Math.random() * 100;
-    const isWin = resultPoint <= state.chance;
-    const finalRotation = 360 * 5 + (resultPoint * 3.6); // 5 полных оборотов + точка
-    
-    ticker.style.transform = `rotate(${finalRotation}deg)`;
-    
-    setTimeout(() => {
-        showResult(isWin);
-    }, 3200);
-};
-
-function showResult(win) {
-    const modal = document.getElementById('result-modal');
-    const title = document.getElementById('result-title');
-    
-    modal.classList.remove('hidden');
-    if (win) {
-        title.innerText = 'WIN';
-        title.className = 'text-[120px] font-black italic text-yellow-500 italic mb-4 win-animate';
-        document.getElementById('result-img').src = state.selectedTarget.img;
-        document.getElementById('result-name').innerText = state.selectedTarget.name;
-    } else {
-        title.innerText = 'LOSE';
-        title.className = 'text-[120px] font-black italic text-red-600 italic mb-4';
-        document.getElementById('result-img').src = state.selectedMy.img;
-        document.getElementById('result-name').innerText = 'Items lost in test mode';
-    }
+function updateUI() {
+    document.getElementById('user-balance').innerText = state.balance.toFixed(2);
 }
 
-window.closeModal = () => {
-    location.reload(); // Для теста просто ресет
+function initHistory() {
+    const track = document.getElementById('live-history');
+    const items = Array(30).fill('<div class="history-item"><img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I5qAZ2N_TIW8LpMQAO6fREDoURo0389m3vB9Of8_SFvD_88uMBBwdLA9SvrulKAdp0P_fczpD7Y60xtSOxPKmZ-6Fwz9X7pYkiLyY99SmiVfsqhVvN23yJ9CcclRrZAnW_FS6x-fu0MK_6ZzNynBrvSAn-z-dyLqA_v56" class="w-full h-full object-contain"></div>');
+    track.innerHTML = items.join('') + items.join('');
+}
+
+window.showPage = (p) => {
+    document.getElementById('page-main').classList.toggle('hidden', p !== 'main');
+    document.getElementById('page-profile').classList.toggle('hidden', p !== 'profile');
 };
