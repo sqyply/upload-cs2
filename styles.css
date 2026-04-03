@@ -1,75 +1,55 @@
 /* style.css */
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-thumb { background: rgba(234, 179, 8, 0.2); border-radius: 10px; }
+body { scrollbar-gutter: stable; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
-.custom-scroll { scrollbar-width: thin; scrollbar-color: #eab308 transparent; }
-
-.compact-speed-btn {
-    padding: 6px 14px;
-    font-size: 9px;
+.s-btn {
+    padding: 6px 16px;
+    font-size: 10px;
     font-weight: 900;
     text-transform: uppercase;
     font-style: italic;
     color: #444;
-    transition: 0.2s;
     border-radius: 8px;
+    transition: 0.2s;
 }
-.compact-speed-btn.active { background: #eab308; color: black; }
+.s-btn.active { background: #eab308; color: #000; }
 
 .p-btn {
-    background: #0d0d0e;
-    border: 1px solid white/5;
-    padding: 8px 14px;
-    border-radius: 10px;
-    font-size: 10px;
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.03);
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 11px;
     font-weight: 900;
-    color: #888;
-    transition: all 0.2s;
+    color: #666;
 }
-.p-btn:hover { border-color: #eab308; color: white; }
+.p-btn:hover { border-color: #eab308; color: #eee; }
 
-.upgrade-main-btn {
+.upgrade-btn {
     background: #eab308;
-    color: black;
-    padding: 18px 50px;
-    border-radius: 20px;
+    color: #000;
+    padding: 20px 60px;
+    border-radius: 24px;
     font-weight: 900;
     text-transform: uppercase;
     font-style: italic;
-    font-size: 15px;
-    box-shadow: 0 10px 30px rgba(234,179,8,0.15);
-    transition: 0.3s;
+    font-size: 18px;
+    box-shadow: 0 15px 40px rgba(234,179,8,0.2);
 }
-.upgrade-main-btn:disabled { opacity: 0.1; grayscale: 1; pointer-events: none; }
+.upgrade-btn:disabled { opacity: 0.05; filter: grayscale(1); }
 
-.item-mini-card {
-    background: #0d0d0e;
-    border: 1px solid white/[0.03];
-    padding: 10px;
-    border-radius: 12px;
-    text-align: center;
+.skin-card {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.02);
+    border-radius: 16px;
+    padding: 12px;
     cursor: pointer;
     transition: 0.2s;
 }
-.item-mini-card:hover { border-color: #eab308/50; transform: translateY(-2px); }
-.item-mini-card.selected { border-color: #eab308; background: rgba(234,179,8,0.03); }
+.skin-card.selected { border-color: #eab308; background: rgba(234,179,8,0.03); }
 
-.sell-btn {
-    margin-top: 5px;
-    text-[8px] font-black text-gray-500 uppercase hover:text-red-500;
+@keyframes pop {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
-
-@keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
-.animate-scroll { animation: scroll 60s linear infinite; }
-
-.history-item {
-    min-width: 50px;
-    height: 40px;
-    background: rgba(255,255,255,0.02);
-    border-radius: 6px;
-    padding: 5px;
-    border-bottom: 2px solid #eab308;
-}
+.animate-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
