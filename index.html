@@ -2,90 +2,80 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>UPLOAD | Real-Money Upgrader</title>
+    <title>UPLOAD | CS2 ENGINE</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-[#050505] text-[#eee] font-['Geologica'] overflow-hidden">
+<body class="bg-[#0b0b0d] text-white font-['Exo_2'] overflow-hidden select-none">
 
-    <div class="h-12 bg-[#080808] border-b border-white/[0.03] flex items-center overflow-hidden">
-        <div id="live-feed" class="flex gap-2 px-4 animate-scroll whitespace-nowrap"></div>
-    </div>
-
-    <header class="h-16 flex items-center justify-between px-10 border-b border-white/[0.02]">
-        <div class="flex items-center gap-8">
-            <h1 onclick="location.reload()" class="text-xl font-black italic tracking-tighter text-yellow-500 cursor-pointer">UPLOAD</h1>
-            <div class="flex items-center gap-3 bg-white/[0.03] border border-white/5 px-3 py-1.5 rounded-xl">
-                <div class="w-5 h-5 bg-yellow-500 rounded-lg flex items-center justify-center text-[10px] text-black font-black italic">SQ</div>
-                <span id="balance" class="text-sm font-black">0.00</span>
-                <button onclick="openDeposit()" class="ml-2 bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded text-[10px] font-black hover:bg-yellow-500 hover:text-black transition-all">+ TOP UP</button>
+    <header class="h-16 bg-[#121214] border-b border-white/5 flex items-center justify-between px-8">
+        <h1 class="text-2xl font-black italic tracking-tighter text-yellow-500 cursor-pointer">UPLOAD</h1>
+        <div class="flex items-center gap-4">
+            <div class="bg-black/40 px-4 py-2 rounded-xl border border-white/10 flex items-center gap-2">
+                <span class="text-yellow-500 font-black">SQ</span>
+                <span id="balance">1500.00</span>
             </div>
-        </div>
-
-        <div id="auth-section">
-            <button onclick="login()" class="bg-white text-black px-5 py-2 rounded-xl text-xs font-black uppercase italic">Login with Google</button>
-        </div>
-        <div id="user-section" class="hidden flex items-center gap-4 cursor-pointer" onclick="showPage('profile')">
-            <div class="text-right">
-                <div id="username" class="text-[11px] font-black uppercase">Loading...</div>
-                <div class="text-[9px] text-gray-500 uppercase font-bold">LVL <span id="lvl">1</span></div>
-            </div>
-            <img id="avatar" src="" class="w-10 h-10 rounded-xl border border-white/10">
+            <div class="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center text-black font-black italic">J</div>
         </div>
     </header>
 
-    <main id="main-app" class="flex h-[calc(100vh-112px)] p-6 gap-6">
-        <div class="w-[280px] bg-[#080808] border border-white/5 rounded-3xl flex flex-col overflow-hidden">
-            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
-                <span class="text-[10px] font-black text-gray-500 uppercase italic">Inventory</span>
-                <button onclick="sellAll()" class="text-[9px] font-black text-red-500/60 hover:text-red-500">SELL ALL</button>
+    <div class="flex h-[calc(100vh-64px)] p-4 gap-4">
+        
+        <aside class="w-80 bg-[#0e0e10] rounded-2xl border border-white/5 flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center">
+                <span class="text-[10px] font-black uppercase text-gray-500 italic">Inventory</span>
+                <button onclick="sellAll()" class="text-[9px] text-red-500 font-black hover:opacity-80">SELL ALL</button>
             </div>
-            <div id="my-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2 no-scrollbar"></div>
-        </div>
+            <div id="my-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2 custom-scroll">
+                </div>
+        </aside>
 
-        <div class="flex-1 flex flex-col items-center justify-center relative">
-            <div class="flex gap-1 mb-8 bg-black p-1 rounded-xl border border-white/5">
-                <button onclick="setSpeed(3000)" class="s-btn active">Slow</button>
-                <button onclick="setSpeed(1000)" class="s-btn">Fast</button>
-                <button onclick="setSpeed(100)" class="s-btn text-yellow-500">Instant</button>
+        <main class="flex-1 flex flex-col items-center justify-center relative">
+            <div class="flex gap-1 mb-6 bg-black p-1 rounded-xl border border-white/5">
+                <button onclick="setSpeed(3000, this)" class="spd-btn active">Slow</button>
+                <button onclick="setSpeed(1000, this)" class="spd-btn">Fast</button>
+                <button onclick="setSpeed(100, this)" class="spd-btn !text-yellow-500">Instant</button>
             </div>
 
-            <div class="relative w-[340px] h-[340px] flex items-center justify-center">
+            <div class="relative w-[360px] h-[360px] flex items-center justify-center">
                 <svg class="absolute inset-0 w-full h-full -rotate-90">
-                    <circle cx="170" cy="170" r="155" fill="none" stroke="#0e0e0e" stroke-width="14" />
-                    <circle id="ring" cx="170" cy="170" r="155" fill="none" stroke="#eab308" stroke-width="14" 
-                            stroke-dasharray="974" stroke-dashoffset="974" stroke-linecap="round" class="transition-all duration-500" />
+                    <circle cx="180" cy="180" r="160" fill="none" stroke="#1a1a1d" stroke-width="12" />
+                    <circle id="ring-progress" cx="180" cy="180" r="160" fill="none" stroke="#eab308" stroke-width="12" 
+                            stroke-dasharray="1005" stroke-dashoffset="1005" stroke-linecap="round" class="transition-all duration-500" />
                 </svg>
-                <div class="text-center">
-                    <div id="chance" class="text-6xl font-black italic">0%</div>
-                    <div class="text-[10px] text-gray-600 font-bold uppercase tracking-widest mt-2">Chance</div>
+                
+                <div id="ticker" class="absolute top-[8px] w-1.5 h-8 bg-white shadow-[0_0_15px_white] rounded-full hidden" style="transform-origin: 50% 172px;"></div>
+
+                <div class="text-center z-10">
+                    <div id="chance-display" class="text-7xl font-black italic">0%</div>
+                    <div class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.4em] mt-2">Chance</div>
                 </div>
             </div>
 
             <div class="flex gap-2 mt-8">
-                <button onclick="setPreset(1.5)" class="p-btn">1.5x</button>
-                <button onclick="setPreset(2)" class="p-btn">2x</button>
-                <button onclick="setPreset(5)" class="p-btn">5x</button>
-                <button onclick="setPreset(10)" class="p-btn">10x</button>
+                <button onclick="setChance(1.5)" class="pr-btn">1.5x</button>
+                <button onclick="setChance(2)" class="pr-btn">2x</button>
+                <button onclick="setChance(5)" class="pr-btn">5x</button>
+                <button onclick="setChance(10)" class="pr-btn">10x</button>
             </div>
 
-            <button id="upgrade-btn" disabled onclick="executeUpgrade()" class="mt-10 upgrade-btn">Upgrade Skin</button>
-        </div>
+            <button id="upgrade-btn" disabled onclick="startUpgrade()" class="mt-10 upgrade-main">Select items</button>
+        </main>
 
-        <div class="w-[280px] bg-[#080808] border border-white/5 rounded-3xl flex flex-col overflow-hidden">
+        <aside class="w-80 bg-[#0e0e10] rounded-2xl border border-white/5 flex flex-col overflow-hidden">
             <div class="p-4 border-b border-white/5">
-                <input type="text" oninput="search(this.value)" placeholder="Search target..." class="w-full bg-black border border-white/5 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-yellow-500/30">
+                <input type="text" id="search-input" oninput="filterShop()" placeholder="Search skins..." class="w-full bg-black border border-white/5 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-yellow-500/50">
             </div>
-            <div id="shop-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2 no-scrollbar"></div>
-        </div>
-    </main>
+            <div id="shop-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2 custom-scroll">
+                </div>
+        </aside>
 
-    <div id="modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-[100] flex items-center justify-center">
-        <div id="modal-content" class="text-center animate-pop"></div>
+    </div>
+
+    <div id="modal" class="fixed inset-0 bg-black/95 z-[100] hidden flex items-center justify-center animate-fade">
+        <div id="modal-res" class="text-center">
+            </div>
     </div>
 
     <script src="app.js"></script>
