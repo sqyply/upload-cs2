@@ -1,124 +1,172 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPLOAD.CS2 | Upgrader Engine</title>
+    <title>UPGRADER | CS2 Skins Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-[#080808] text-white font-['Montserrat'] overflow-x-hidden">
+<body class="bg-[#0b0b0d] text-[#e1e1e1] font-['Exo_2'] select-none overflow-hidden">
 
-    <div class="h-20 bg-[#0c0c0c] border-b border-white/5 flex items-center relative overflow-hidden">
-        <div class="absolute left-0 z-20 bg-yellow-500 text-black px-4 py-7 font-black italic text-xs shadow-[10px_0_30px_rgba(234,179,8,0.2)]">LIVE</div>
-        <div id="live-drop-container" class="flex gap-3 ml-20 animate-scroll">
-            </div>
-    </div>
-
-    <nav class="flex justify-between items-center px-10 py-5 bg-[#0a0a0a] border-b border-white/5">
-        <div onclick="showPage('main')" class="text-3xl font-black italic text-yellow-500 cursor-pointer tracking-tighter hover:scale-105 transition-transform">UPLOAD.CS2</div>
-        
+    <header class="h-[70px] bg-[#121214] border-b border-white/[0.03] flex items-center justify-between px-6 z-50 relative">
         <div class="flex items-center gap-8">
-            <div class="flex flex-col items-end">
-                <span id="nav-balance" class="text-xl font-black text-yellow-500 italic">0.00 SQ</span>
-                <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Ваш баланс</span>
-            </div>
-            <div onclick="showPage('profile')" class="flex items-center gap-4 bg-white/5 p-2 pr-6 rounded-2xl border border-white/5 cursor-pointer hover:bg-white/10 transition-all">
-                <div class="w-12 h-12 bg-yellow-500 rounded-xl flex items-center justify-center text-black font-black text-xl italic shadow-lg shadow-yellow-500/20">?</div>
-                <div>
-                    <div id="nav-username" class="font-black text-sm uppercase italic">ФАМА</div>
-                    <div class="text-[10px] text-yellow-500 font-bold uppercase">Level <span id="nav-level">1</span></div>
+            <div class="flex items-center gap-2 cursor-pointer group">
+                <div class="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center rotate-45 group-hover:rotate-90 transition-transform duration-500">
+                    <div class="-rotate-45 group-hover:-rotate-90 transition-transform duration-500">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="black"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
+                    </div>
                 </div>
+                <span class="text-2xl font-[900] tracking-tighter uppercase italic">UPGRADER</span>
+            </div>
+            
+            <nav class="flex gap-6 text-sm font-bold text-gray-500 uppercase tracking-widest">
+                <a href="#" class="hover:text-white transition-colors">Events</a>
+                <a href="#" class="text-white border-b-2 border-yellow-500 pb-1">Upgrade</a>
+                <a href="#" class="hover:text-white transition-colors">Case Battles</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <div class="bg-[#1a1a1d] px-4 py-2 rounded-xl border border-white/[0.05] flex items-center gap-3">
+                <span id="user-balance" class="font-black text-yellow-500 italic text-lg">0.20</span>
+                <div class="w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center text-[10px] text-black font-bold">SQ</div>
+                <button class="ml-2 bg-yellow-500 text-black px-3 py-1 rounded-lg text-[10px] font-black uppercase hover:bg-yellow-400">Top Up</button>
+            </div>
+            
+            <div onclick="toggleProfile()" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                <div class="text-right">
+                    <div class="text-xs font-black uppercase italic" id="display-name">Loading...</div>
+                    <div class="text-[9px] text-gray-500 font-bold uppercase tracking-tighter">ID 372958</div>
+                </div>
+                <div id="user-avatar" class="w-10 h-10 bg-[#252528] rounded-xl border border-white/10 overflow-hidden flex items-center justify-center text-xl font-bold italic text-yellow-500">?</div>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <main id="page-main" class="p-8 grid grid-cols-12 gap-8 max-w-[1700px] mx-auto min-h-[85vh]">
+    <div class="flex h-[calc(100vh-70px)]">
         
-        <section class="col-span-3 bg-[#0d0d0d] rounded-[40px] p-6 border border-white/5 relative overflow-hidden flex flex-col shadow-inner">
-            <div class="awp-silhouette left-[-30%] opacity-[0.03]"></div>
-            <h2 class="text-xs font-black uppercase text-gray-500 mb-6 italic tracking-[0.2em] relative z-10">Твой инвентарь</h2>
-            <div id="inventory-list" class="flex-1 space-y-3 overflow-y-auto custom-scroll relative z-10 pr-2"></div>
-        </section>
+        <aside class="w-[100px] bg-[#0e0e10] border-r border-white/[0.03] flex flex-col items-center py-4 gap-3 overflow-y-auto custom-scroll no-scrollbar">
+            <div id="live-history" class="space-y-3"></div>
+        </aside>
 
-        <section class="col-span-6 flex flex-col items-center justify-center relative">
-            <div class="flex gap-2 mb-10 bg-black/50 p-1.5 rounded-2xl border border-white/10">
-                <button onclick="setSpeed('slow')" id="speed-slow" class="speed-btn active">Slow</button>
-                <button onclick="setSpeed('fast')" id="speed-fast" class="speed-btn">Fast</button>
-                <button onclick="setSpeed('instant')" id="speed-instant" class="speed-btn !text-yellow-500">Instant</button>
-            </div>
-
-            <div class="relative w-[450px] h-[450px] flex items-center justify-center">
-                <svg class="w-full h-full -rotate-90">
-                    <circle cx="225" cy="225" r="210" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="16"/>
-                    <circle id="progress-ring" cx="225" cy="225" r="210" fill="none" stroke="#eab308" stroke-width="16" 
-                            stroke-dasharray="1319" stroke-dashoffset="1319" stroke-linecap="round" 
-                            class="transition-all duration-[2000ms] ease-out shadow-glow"/>
-                </svg>
-                <div class="absolute text-center">
-                    <div id="chance-display" class="text-[80px] font-black italic italic leading-none">0%</div>
-                    <div class="text-xs text-gray-500 font-bold uppercase tracking-[0.4em] mt-4 opacity-50 italic">Chance of success</div>
-                </div>
-            </div>
-
-            <div class="flex gap-3 mt-12 mb-10">
-                <button onclick="setChancePreset(1)" class="chance-btn">1.5x</button>
-                <button onclick="setChancePreset(15)" class="chance-btn">2x</button>
-                <button onclick="setChancePreset(35)" class="chance-btn">5x</button>
-                <button onclick="setChancePreset(50)" class="chance-btn">10x</button>
-                <button onclick="setChancePreset(75)" class="chance-btn">50x</button>
-            </div>
-
-            <button id="upgrade-btn" disabled class="main-upgrade-btn">Select items</button>
-        </section>
-
-        <section class="col-span-3 bg-[#0d0d0d] rounded-[40px] p-6 border border-white/5 relative overflow-hidden flex flex-col shadow-inner">
-            <div class="awp-silhouette right-[-30%] scale-x-[-1] opacity-[0.03]"></div>
-            <h2 class="text-xs font-black uppercase text-gray-500 mb-6 italic tracking-[0.2em] relative z-10">Target Item</h2>
-            <div id="target-list" class="flex-1 space-y-3 overflow-y-auto custom-scroll relative z-10 pr-2"></div>
-        </section>
-    </main>
-
-    <div id="page-profile" class="hidden p-12 max-w-[1300px] mx-auto animate-fade-in">
-        <div class="grid grid-cols-12 gap-8">
-            <div class="col-span-4 bg-[#111] p-10 rounded-[50px] border border-white/5 relative overflow-hidden text-center">
-                <div class="absolute -top-4 -right-4 text-8xl font-black italic opacity-[0.03]">USER</div>
-                <div class="w-36 h-36 bg-yellow-500 rounded-[45px] mx-auto mb-8 flex items-center justify-center text-6xl font-black text-black italic shadow-[0_20px_50px_rgba(234,179,8,0.3)]">?</div>
-                <h1 class="text-4xl font-black italic uppercase tracking-tighter mb-4">ФАМА</h1>
+        <main class="flex-1 flex flex-col overflow-y-auto no-scrollbar relative bg-[radial-gradient(circle_at_50%_-20%,_rgba(234,179,8,0.05)_0%,_transparent_50%)]">
+            
+            <section class="min-h-[500px] w-full flex items-center justify-around px-20 py-10 relative">
                 
-                <div class="w-full bg-white/5 h-4 rounded-full mt-10 mb-3 border border-white/5 p-1">
-                    <div id="xp-bar" class="bg-yellow-500 h-full rounded-full shadow-[0_0_20px_rgba(234,179,8,0.4)] transition-all duration-1000" style="width: 0%"></div>
+                <div class="w-[320px] h-[320px] bg-[#121214]/80 rounded-[40px] border border-white/[0.05] flex flex-col items-center justify-center p-6 relative overflow-hidden group">
+                    <div id="selected-my-container" class="z-10 flex flex-col items-center">
+                        <div class="w-40 h-40 opacity-20 group-hover:opacity-40 transition-opacity">
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-4">Select skins to use</p>
+                    </div>
+                    <div id="selected-my-item" class="hidden z-10 flex flex-col items-center">
+                        <img id="my-item-img" src="" class="w-48 h-32 object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]">
+                        <div class="text-center mt-4">
+                            <div id="my-item-name" class="text-[11px] font-bold uppercase text-gray-400 truncate w-40"></div>
+                            <div id="my-item-price" class="text-yellow-500 font-black italic text-lg mt-1"></div>
+                        </div>
+                    </div>
                 </div>
-                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest italic">Level <span id="prof-level" class="text-yellow-500">1</span> — <span id="prof-xp">0</span> / 1000 XP</p>
-                
-                <button class="w-full mt-10 bg-yellow-500 text-black py-5 rounded-[25px] font-black uppercase italic tracking-widest hover:scale-[1.02] transition-all">Deposit Balance</button>
-            </div>
 
-            <div class="col-span-5 bg-[#111] p-10 rounded-[50px] border border-white/5 flex flex-col items-center justify-center relative">
-                <p class="absolute top-8 left-10 text-gray-600 text-[10px] font-black uppercase italic tracking-widest">Personal Best Drop</p>
-                <img id="best-drop-img" src="" class="w-64 h-64 object-contain drop-shadow-[0_40px_80px_rgba(234,179,8,0.25)]">
-                <h3 id="best-drop-name" class="font-black italic text-2xl uppercase mt-6 tracking-tighter">None</h3>
-                <span id="best-drop-price" class="text-yellow-500 font-black text-lg italic mt-1">0.00 SQ</span>
-            </div>
+                <div class="flex flex-col items-center gap-8">
+                    <div class="relative w-[360px] h-[360px] flex items-center justify-center">
+                        <svg class="absolute inset-0 w-full h-full -rotate-90">
+                            <circle cx="180" cy="180" r="165" fill="none" stroke="#1a1a1d" stroke-width="25" />
+                            <circle id="ring-progress" cx="180" cy="180" r="165" fill="none" stroke="url(#grad)" stroke-width="25" 
+                                    stroke-dasharray="1036" stroke-dashoffset="1036" stroke-linecap="round" class="transition-all duration-700 ease-out" />
+                            <defs>
+                                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#eab308;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        
+                        <div class="text-center z-10">
+                            <div id="chance-text" class="text-[72px] font-black italic italic leading-none text-white tracking-tighter">0.00%</div>
+                            <div class="text-[10px] text-gray-500 font-black uppercase tracking-[0.4em] mt-2 opacity-50">Medium Chance</div>
+                        </div>
 
-            <div class="col-span-3 space-y-6">
-                <div class="bg-[#111] p-10 rounded-[40px] border border-white/5 text-center">
-                    <p class="text-gray-500 text-[10px] font-black uppercase italic mb-2 tracking-widest">Total Upgrades</p>
-                    <p id="stat-total" class="text-5xl font-black text-yellow-500 italic">0</p>
+                        <div id="ticker" class="absolute top-[15px] w-2 h-10 bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.8)] rounded-full transition-all duration-[3000ms] hidden" style="transform-origin: 50% 165px;"></div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="setSpeed('slow')" class="speed-btn active">Slow</button>
+                        <button onclick="setSpeed('fast')" class="speed-btn">Turbo</button>
+                        <button onclick="setSpeed('instant')" class="speed-btn">Instant</button>
+                    </div>
+
+                    <button id="btn-execute" disabled class="upgrade-execute-btn">Upgrade</button>
                 </div>
-                <div onclick="location.reload()" class="bg-red-500/5 p-10 rounded-[40px] border border-red-500/10 text-center cursor-pointer hover:bg-red-500/10 transition-all">
-                    <p class="text-red-500 font-black uppercase text-xs italic tracking-widest">Logout Account</p>
+
+                <div class="w-[320px] h-[320px] bg-[#121214]/80 rounded-[40px] border border-white/[0.05] flex flex-col items-center justify-center p-6 relative overflow-hidden group">
+                    <div id="selected-target-container" class="z-10 flex flex-col items-center">
+                        <div class="w-40 h-40 opacity-20 group-hover:opacity-40 transition-opacity rotate-180">
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-4">Select skin for upgrade</p>
+                    </div>
+                    <div id="selected-target-item" class="hidden z-10 flex flex-col items-center">
+                        <img id="target-item-img" src="" class="w-48 h-32 object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]">
+                        <div class="text-center mt-4">
+                            <div id="target-item-name" class="text-[11px] font-bold uppercase text-gray-400 truncate w-40"></div>
+                            <div id="target-item-price" class="text-yellow-500 font-black italic text-lg mt-1"></div>
+                        </div>
+                    </div>
                 </div>
+            </section>
+
+            <section class="p-8 bg-[#0e0e10]/50 rounded-t-[50px] border-t border-white/[0.03] flex-1">
+                <div class="max-w-7xl mx-auto grid grid-cols-2 gap-10">
+                    
+                    <div>
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xs font-black uppercase text-gray-500 tracking-widest italic flex items-center gap-2">
+                                <span class="w-2 h-2 bg-yellow-500 rounded-full"></span> My Skins
+                            </h3>
+                            <input type="text" placeholder="Search..." class="bg-[#1a1a1d] border border-white/5 rounded-lg px-4 py-2 text-[10px] focus:outline-none focus:border-yellow-500/50 w-32">
+                        </div>
+                        <div id="grid-my" class="grid grid-cols-4 gap-3 h-[400px] overflow-y-auto pr-2 custom-scroll">
+                            </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xs font-black uppercase text-gray-500 tracking-widest italic flex items-center gap-2">
+                                <span class="w-2 h-2 bg-yellow-500 rounded-full"></span> Select Target
+                            </h3>
+                            <div class="flex gap-2">
+                                <input type="number" placeholder="From" class="bg-[#1a1a1d] border border-white/5 rounded-lg px-3 py-2 text-[10px] w-20">
+                                <input type="number" placeholder="To" class="bg-[#1a1a1d] border border-white/5 rounded-lg px-3 py-2 text-[10px] w-20">
+                            </div>
+                        </div>
+                        <div id="grid-shop" class="grid grid-cols-4 gap-3 h-[400px] overflow-y-auto pr-2 custom-scroll">
+                            </div>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="result-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm hidden flex items-center justify-center p-10">
+        <div class="text-center">
+            <h2 id="result-title" class="text-[120px] font-black italic italic leading-none mb-4">WIN</h2>
+            <div id="result-skin-box" class="bg-[#121214] p-10 rounded-[60px] border border-white/10 mb-8 inline-block shadow-2xl">
+                <img id="result-img" src="" class="w-72 h-48 object-contain">
+                <h4 id="result-name" class="text-xl font-black italic uppercase mt-4"></h4>
             </div>
+            <br>
+            <button onclick="closeModal()" class="bg-yellow-500 text-black px-12 py-5 rounded-3xl font-black uppercase italic tracking-widest hover:scale-110 transition-transform">Collect Item</button>
         </div>
     </div>
 
-    <script src="test-mode.js"></script>
-    <script src="ui.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
